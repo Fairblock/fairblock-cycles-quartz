@@ -84,7 +84,7 @@ async fn verify_event_proof(
     event_key: &[u8],
     block_height: Height,
 ) -> Result<bool> {
-return Ok(true);
+    
     let query_response: AbciQuery = client
         .abci_query(
             Some("/store/keyshare/key".to_string()), 
