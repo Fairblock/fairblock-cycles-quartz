@@ -1,14 +1,12 @@
-# Transfers
+# Fairblock-Cycles-Quartz
 
-This is a simple Quartz demo app, complete with Keplr-based frontend. 
-It allows users to deposit funds to a contract, 
-transfer them around privately within the contract's encrypted state,
-and withdraw whatever funds they have.
+We plan to have our validators run the FairyringClient code inside TEEs to prevent their direct access to their shares. For this, we can use the provided Cycles-Quartz libraries to perform on-chain attestation of the TEEs by having a registration CosmWasm contract on FairyRing. The registration contract performs the handshake with validators' TEEs and stores their Public Keys (PKs).
 
-See the [getting started guide](/docs/getting_started.md) to get it quickly
-setup on a local testnet without SGX or on a real testnet using an Azure SGX
-node.
+After the registration, the PKs will be fetched from the contract. Each validator's share will be encrypted with their registered PK, and the encrypted shares will be sent on-chain. The TEEs can fetch the shares and decrypt them inside the enclave using the corresponding Secret Key (SK). This way, the validators will have no knowledge of their shares.
 
-See this [video of an early demo of the app at the Flashbots
-TEE-salon](https://www.youtube.com/watch?v=3Tv6k02zvBc&t=2517s).
+Once there is a need for a decryption key, the event will be monitored by the enclave code and verified through the client proofs. Since we are verifying the chain state, we will use the Tendermint abci_query for verification. The keyshare will be extracted inside the enclave, then it will be signed using the SK (corresponding to the PK stored inside the CosmWasm contract) and sent on-chain. The signature can be verified on-chain using the registered PK to ensure that the request comes from inside the TEE, and then the extracted key can be used for aggregation.
 
+For the base of our implementation, we are using this provided Transfers example.
+
+Below is a diagram of the steps:
+![Fairblock-Cycles-Quartz](./cycles.png)
