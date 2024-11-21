@@ -110,45 +110,6 @@ pub mod settlement_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn run(
-            &mut self,
-            request: impl tonic::IntoRequest<super::UpdateRequest>,
-        ) -> std::result::Result<tonic::Response<super::UpdateResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/transfers.Settlement/Run");
-            let mut req = request.into_request();
-            req.extensions_mut().insert(GrpcMethod::new("transfers.Settlement", "Run"));
-            self.inner.unary(req, path, codec).await
-        }
-        pub async fn query(
-            &mut self,
-            request: impl tonic::IntoRequest<super::QueryRequest>,
-        ) -> std::result::Result<tonic::Response<super::QueryResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/transfers.Settlement/Query",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("transfers.Settlement", "Query"));
-            self.inner.unary(req, path, codec).await
-        }
     }
 }
 /// Generated server implementations.
@@ -163,16 +124,7 @@ pub mod settlement_server {
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with SettlementServer.
     #[async_trait]
-    pub trait Settlement: std::marker::Send + std::marker::Sync + 'static {
-        async fn run(
-            &self,
-            request: tonic::Request<super::UpdateRequest>,
-        ) -> std::result::Result<tonic::Response<super::UpdateResponse>, tonic::Status>;
-        async fn query(
-            &self,
-            request: tonic::Request<super::QueryRequest>,
-        ) -> std::result::Result<tonic::Response<super::QueryResponse>, tonic::Status>;
-    }
+    pub trait Settlement: std::marker::Send + std::marker::Sync + 'static {}
     #[derive(Debug)]
     pub struct SettlementServer<T> {
         inner: Arc<T>,
@@ -249,92 +201,6 @@ pub mod settlement_server {
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             match req.uri().path() {
-                "/transfers.Settlement/Run" => {
-                    #[allow(non_camel_case_types)]
-                    struct RunSvc<T: Settlement>(pub Arc<T>);
-                    impl<T: Settlement> tonic::server::UnaryService<super::UpdateRequest>
-                    for RunSvc<T> {
-                        type Response = super::UpdateResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::UpdateRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Settlement>::run(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = RunSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/transfers.Settlement/Query" => {
-                    #[allow(non_camel_case_types)]
-                    struct QuerySvc<T: Settlement>(pub Arc<T>);
-                    impl<T: Settlement> tonic::server::UnaryService<super::QueryRequest>
-                    for QuerySvc<T> {
-                        type Response = super::QueryResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::QueryRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Settlement>::query(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = QuerySvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
                 _ => {
                     Box::pin(async move {
                         let mut response = http::Response::new(empty_body());

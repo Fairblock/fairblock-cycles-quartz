@@ -1,5 +1,5 @@
 mock_sgx = false
-tx_sender = "val1"
+tx_sender = "admin"
 chain_id = "pion-1"
 node_url = "https://rpc-falcron.pion-1.ntrn.tech"
 ws_url = "wss://rpc-falcron.pion-1.ntrn.tech/websocket"

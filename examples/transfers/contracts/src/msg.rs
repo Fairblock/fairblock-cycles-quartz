@@ -1,87 +1,40 @@
 use cosmwasm_schema::cw_serde;
 use quartz_common::contract::{
-    msg::execute::{
-        attested::{RawAttested, RawDefaultAttestation, RawMsgSansHandler},
-        sequenced::RawSequencedMsg,
-    },
+    msg::execute::attested::{RawAttested, RawAttestedMsgSansHandler, RawDefaultAttestation},
     prelude::*,
 };
 
-pub type AttestedMsg<M, RA = RawDefaultAttestation> = RawAttested<RawMsgSansHandler<M>, RA>;
-pub type SequencedMsgSansHandler<M> = RawSequencedMsg<RawMsgSansHandler<M>>;
+pub type AttestedMsg<M, RA = RawDefaultAttestation> = RawAttested<RawAttestedMsgSansHandler<M>, RA>;
 
 #[cw_serde]
 pub struct InstantiateMsg<RA = RawDefaultAttestation> {
     pub quartz: QuartzInstantiateMsg<RA>,
-    pub denom: String,
 }
 
 #[cw_serde]
 pub enum QueryMsg {
-    GetBalance { address: String },
-    GetRequests {},
-    GetState {},
+    GetPublicKeys {}, // Query for registered public keys
 }
 
 #[cw_serde]
 #[allow(clippy::large_enum_variant)]
 pub enum ExecuteMsg<RA = RawDefaultAttestation> {
-    // quartz initialization
+    // Quartz message for initializing sessions and setting public keys
     Quartz(QuartzExecuteMsg<RA>),
 
-    // User msgs
-    // clear text
-    Deposit,
-    Withdraw,
-    ClearTextTransferRequest(execute::ClearTextTransferRequestMsg),
-    // ciphertext
-    TransferRequest(SequencedMsgSansHandler<execute::TransferRequestMsg>),
-    QueryRequest(execute::QueryRequestMsg),
 
-    // Enclave msgs
-    Update(AttestedMsg<execute::UpdateMsg, RA>),
-    QueryResponse(AttestedMsg<execute::QueryResponseMsg, RA>),
 }
 
 pub mod execute {
     use cosmwasm_schema::cw_serde;
-    use cosmwasm_std::{Addr, HexBinary, Uint128};
+    use cosmwasm_std::HexBinary;
     use quartz_common::contract::{msg::execute::attested::HasUserData, state::UserData};
     use sha2::{Digest, Sha256};
-
-    #[cw_serde]
-    pub struct ClearTextTransferRequestMsg {
-        pub sender: Addr,
-        pub receiver: Addr,
-        pub amount: Uint128,
-        // pub proof: π
-    }
-
-    #[cw_serde]
-    pub struct QueryRequestMsg {
-        pub emphemeral_pubkey: HexBinary,
-    }
-
-    #[cw_serde]
-    pub struct TransferRequestMsg {
-        pub ciphertext: HexBinary,
-        pub digest: HexBinary,
-        // pub proof: π
-    }
-
-    #[cw_serde]
-    pub enum Request {
-        Transfer(HexBinary),
-        Withdraw(Addr),
-        Deposit(Addr, Uint128),
-    }
 
     #[cw_serde]
     pub struct UpdateMsg {
         pub ciphertext: HexBinary,
         pub quantity: u32,
-        pub withdrawals: Vec<(Addr, Uint128)>,
-        // pub proof: π
     }
 
     impl HasUserData for UpdateMsg {
@@ -98,9 +51,8 @@ pub mod execute {
 
     #[cw_serde]
     pub struct QueryResponseMsg {
-        pub address: Addr,
+        pub address: String,
         pub encrypted_bal: HexBinary,
-        // pub proof: π
     }
 
     impl HasUserData for QueryResponseMsg {

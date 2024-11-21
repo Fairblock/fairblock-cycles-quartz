@@ -13,11 +13,14 @@
 )]
 
 pub mod cli;
+pub mod extract;
+pub mod fairy_listener;
+pub mod get_share;
 pub mod proto;
-pub mod state;
 pub mod transfers_server;
+pub mod tx;
 pub mod wslistener;
-
+use rand;
 use std::{
     sync::{Arc, Mutex},
     time::Duration,
@@ -25,17 +28,19 @@ use std::{
 
 use clap::Parser;
 use cli::Cli;
+use fairy_listener::listen_fairyring;
+
+
 use quartz_common::{
     contract::state::{Config, LightClientOpts},
     enclave::{
-        attestor::{self, Attestor, DefaultAttestor},
+        attestor::{self, Attestor},
         server::{QuartzServer, WsListenerConfig},
     },
 };
-use tokio::sync::mpsc;
-use transfers_server::{TransfersOp, TransfersService};
 
-use crate::wslistener::WsListener;
+use tokio::time::sleep;
+use transfers_server::TransfersService;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -75,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args.dcap_verifier_contract.map(|c| c.to_string()),
     );
 
-    let ws_config = WsListenerConfig {
+    let mut ws_config = WsListenerConfig {
         node_url: args.node_url,
         ws_url: args.ws_url,
         grpc_url: args.grpc_url,
@@ -86,30 +91,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         admin_sk,
     };
 
-    // Event queue
-    let (tx, mut rx) = mpsc::channel::<TransfersOp<DefaultAttestor>>(1);
-    // Consumer task: dequeue and process events
-    tokio::spawn(async move {
-        while let Some(op) = rx.recv().await {
-            if let Err(e) = op.client.process(op.event, op.config).await {
-                println!("Error processing queued event: {}", e);
-            }
-        }
-    });
-
     let contract = Arc::new(Mutex::new(None));
     let sk = Arc::new(Mutex::new(None));
 
-    QuartzServer::new(
-        config.clone(),
-        contract.clone(),
-        sk.clone(),
-        attestor.clone(),
-        ws_config,
-    )
-    .add_service(TransfersService::new(config, sk, contract, attestor, tx))
-    .serve(args.rpc_addr)
-    .await?;
+    let sk_clone1 = sk.clone();
+    let sk_clone2 = sk.clone();
+    tokio::spawn(async move {
+        let _ = QuartzServer::new(
+            config.clone(),
+            sk_clone1,
+            contract.clone(),
+            attestor.clone(),
+            ws_config.clone(),
+        )
+        .add_service(TransfersService::new(config, contract, sk_clone2, attestor))
+        .serve(args.rpc_addr)
+        .await;
+    });
+
+    loop {
+      
+        let maybe_key = match sk.lock() {
+            Ok(guard) => guard.clone(),
+            Err(e) => {
+                eprintln!("Mutex lock failed: {:?}", e);
+                None 
+            }
+        };
+
+        if let Some(signing_key) = maybe_key {
+            // Once we have the key, we can pass it to `listen_fairyring`
+            listen_fairyring(signing_key).await?;
+            break;
+        }
+
+        
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
 
     Ok(())
 }

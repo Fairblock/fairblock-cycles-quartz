@@ -6,11 +6,8 @@ use quartz_common::contract::handler::RawHandler;
 
 use crate::{
     error::ContractError,
-    msg::{
-        execute::{QueryResponseMsg, Request, UpdateMsg},
-        ExecuteMsg, InstantiateMsg, QueryMsg,
-    },
-    state::{BALANCES, DENOM, REQUESTS, STATE},
+    msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
+    state::{ContractState, STATE, STATE_PK},
 };
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -20,16 +17,17 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    // must be handled first!
+    // Handle Quartz initialization
     msg.quartz.handle_raw(deps.branch(), &env, &info)?;
 
-    DENOM.save(deps.storage, &msg.denom)?;
-
-    let requests: Vec<Request> = Vec::new();
-    REQUESTS.save(deps.storage, &requests)?;
-
+    // Initialize STATE and STATE_PK
     let state: HexBinary = HexBinary::from(&[0x00]);
     STATE.save(deps.storage, &state)?;
+
+    let state = ContractState {
+        public_keys: Vec::new(),
+    };
+    STATE_PK.save(deps.storage, &state)?;
 
     Ok(Response::new()
         .add_attribute("method", "instantiate")
@@ -43,213 +41,46 @@ pub fn execute(
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
-    use execute::*;
-
     match msg {
-        // Quartz msgs
-        ExecuteMsg::Quartz(msg) => msg.handle_raw(deps, &env, &info).map_err(Into::into),
+        // Handle Quartz messages
+        ExecuteMsg::Quartz(msg) => match msg.clone() {
+            quartz_common::contract::msg::RawExecuteMsg::RawSessionCreate(_raw_attested) => {
+                msg.handle_raw(deps, &env, &info).map_err(Into::into)
+            }
+            quartz_common::contract::msg::RawExecuteMsg::RawSessionSetPubKey(_raw_attested) => {
+                let resp = msg
+                    .handle_raw(deps.branch(), &env, &info)
+                    .map_err(Into::into);
+                
+                let attr = resp.as_ref().unwrap().attributes.clone();
 
-        // Clear user msgs
-        ExecuteMsg::Deposit => deposit(deps, env, info),
-        ExecuteMsg::Withdraw => withdraw(deps, env, info),
-        ExecuteMsg::ClearTextTransferRequest(_) => unimplemented!(),
-        ExecuteMsg::QueryRequest(msg) => query_balance(deps, env, info, msg),
-
-        // Cipher user msgs
-        ExecuteMsg::TransferRequest(msg) => {
-            let _ = msg.clone().handle_raw(deps.branch(), &env, &info)?;
-            transfer_request(deps, env, info, msg.0 .0)
-        }
-
-        // Enclave msgs
-        ExecuteMsg::Update(attested_msg) => {
-            let _ = attested_msg
-                .clone()
-                .handle_raw(deps.branch(), &env, &info)?;
-            let UpdateMsg {
-                ciphertext,
-                quantity,
-                withdrawals,
-            } = attested_msg.msg.0;
-            update(
-                deps,
-                env,
-                info,
-                UpdateMsg {
-                    ciphertext,
-                    quantity,
-                    withdrawals,
-                },
-            )
-        }
-
-        ExecuteMsg::QueryResponse(attested_msg) => {
-            let _ = attested_msg
-                .clone()
-                .handle_raw(deps.branch(), &env, &info)?;
-            let QueryResponseMsg {
-                address,
-                encrypted_bal,
-            } = attested_msg.msg.0;
-            store_balance(
-                deps,
-                env,
-                info,
-                QueryResponseMsg {
-                    address,
-                    encrypted_bal,
-                },
-            )
-        }
-    }
-}
-
-pub mod execute {
-    use cosmwasm_std::{coins, BankMsg, DepsMut, Env, Event, MessageInfo, Response};
-    use cw_utils::must_pay;
-
-    use crate::{
-        error::ContractError,
-        msg::execute::{QueryRequestMsg, QueryResponseMsg, Request, TransferRequestMsg, UpdateMsg},
-        state::{BALANCES, DENOM, REQUESTS, STATE},
-    };
-
-    pub fn deposit(deps: DepsMut, _env: Env, info: MessageInfo) -> Result<Response, ContractError> {
-        let denom: String = DENOM.load(deps.storage)?;
-        let quantity = must_pay(&info, &denom)?;
-
-        let mut requests = REQUESTS.load(deps.storage)?;
-
-        requests.push(Request::Deposit(info.sender, quantity));
-
-        REQUESTS.save(deps.storage, &requests)?;
-
-        let event = Event::new("transfer").add_attribute("action", "user");
-        let resp = Response::new().add_event(event);
-
-        Ok(resp)
-    }
-
-    pub fn withdraw(
-        deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-    ) -> Result<Response, ContractError> {
-        let mut requests = REQUESTS.load(deps.storage)?;
-
-        requests.push(Request::Withdraw(info.sender));
-
-        REQUESTS.save(deps.storage, &requests)?;
-
-        let event = Event::new("transfer").add_attribute("action", "user");
-        let resp = Response::new().add_event(event);
-
-        Ok(resp)
-    }
-
-    pub fn query_balance(
-        _deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        msg: QueryRequestMsg,
-    ) -> Result<Response, ContractError> {
-        let event = Event::new("query_balance")
-            .add_attribute("query", "user")
-            .add_attribute("emphemeral_pubkey", msg.emphemeral_pubkey.to_string());
-        let resp = Response::new().add_event(event);
-        Ok(resp)
-    }
-
-    pub fn transfer_request(
-        deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        msg: TransferRequestMsg,
-    ) -> Result<Response, ContractError> {
-        let mut requests = REQUESTS.load(deps.storage)?;
-
-        requests.push(Request::Transfer(msg.ciphertext));
-
-        REQUESTS.save(deps.storage, &requests)?;
-
-        let event = Event::new("transfer").add_attribute("action", "user");
-        let resp = Response::new().add_event(event);
-
-        Ok(resp)
-    }
-
-    pub fn update(
-        deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        msg: UpdateMsg,
-    ) -> Result<Response, ContractError> {
-        // Store state
-        STATE.save(deps.storage, &msg.ciphertext)?;
-
-        // Clear queue
-        let mut requests: Vec<Request> = REQUESTS.load(deps.storage)?;
-
-        requests.drain(0..msg.quantity as usize);
-
-        REQUESTS.save(deps.storage, &requests)?;
-
-        // Process withdrawals
-        let denom = DENOM.load(deps.storage)?;
-
-        let messages = msg
-            .withdrawals
-            .into_iter()
-            .map(|(user, funds)| BankMsg::Send {
-                to_address: user.to_string(),
-                amount: coins(funds.into(), &denom),
-            });
-
-        let resp = Response::new().add_messages(messages);
-
-        Ok(resp)
-    }
-
-    pub fn store_balance(
-        deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        msg: QueryResponseMsg,
-    ) -> Result<Response, ContractError> {
-        // Store state
-        BALANCES.save(deps.storage, msg.address.as_ref(), &msg.encrypted_bal)?;
-
-        // Emit event
-        let event = Event::new("store_balance")
-            .add_attribute("query", "enclave") // TODO Weird to name it enclave?
-            .add_attribute("address", msg.address.to_string())
-            .add_attribute("encrypted_balance", msg.encrypted_bal.to_string());
-        let resp = Response::new().add_event(event);
-        Ok(resp)
+                let mut state = STATE_PK.load(deps.storage)?;
+                let new_pub_key_value = &attr[1].value;
+                
+                state.public_keys.push(new_pub_key_value.to_string());
+                
+                let _ = STATE_PK.save(deps.storage, &state)?;
+                
+                return resp;
+            }
+        },
     }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetBalance { address } => to_json_binary(&query::get_balance(deps, address)?),
-        QueryMsg::GetRequests {} => to_json_binary(&query::get_requests(deps)?),
-        QueryMsg::GetState {} => to_json_binary(&query::get_state(deps)?),
+        QueryMsg::GetPublicKeys {} => to_json_binary(&query::get_public_keys(deps)?),
     }
 }
+
 mod query {
-    use super::*;
 
-    pub fn get_balance(deps: Deps, address: String) -> StdResult<HexBinary> {
-        let balance = BALANCES.may_load(deps.storage, &address)?;
-        Ok(balance.unwrap_or_default())
-    }
+    use crate::state::STATE_PK;
+    use cosmwasm_std::{Deps, StdResult};
 
-    pub fn get_requests(deps: Deps) -> StdResult<Vec<Request>> {
-        Ok(REQUESTS.load(deps.storage)?)
-    }
-
-    pub fn get_state(deps: Deps) -> StdResult<HexBinary> {
-        Ok(STATE.load(deps.storage)?)
+    pub fn get_public_keys(deps: Deps) -> StdResult<Vec<String>> {
+        let state = STATE_PK.load(deps.storage)?;
+        Ok(state.public_keys)
     }
 }

@@ -1,10 +1,16 @@
 use cosmwasm_std::HexBinary;
-use cw_storage_plus::{Item, Map};
+use cw_storage_plus::Item;
 
-use crate::msg::execute::Request;
 
-pub const REQUESTS_KEY: &str = "requests";
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct ContractState {
+    pub public_keys: Vec<String>, // or whatever type your public key is
+}
+
+pub const STATE_PK: Item<ContractState> = Item::new("state_pk");
 pub const STATE: Item<HexBinary> = Item::new("state");
-pub const REQUESTS: Item<Vec<Request>> = Item::new(REQUESTS_KEY);
-pub const DENOM: Item<String> = Item::new("donation_denom");
-pub const BALANCES: Map<&str, HexBinary> = Map::new("balances");
+
+
