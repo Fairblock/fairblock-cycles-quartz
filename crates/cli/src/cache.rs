@@ -6,7 +6,7 @@ use tokio::{
     fs::File,
     io::{AsyncReadExt, BufReader},
 };
-use tracing::debug;
+use tracing::{debug, info};
 use xxhash_rust::xxh3::Xxh3;
 
 use crate::config::Config;
@@ -25,7 +25,7 @@ struct DeployedContract {
 impl Config {
     pub async fn contract_has_changed(&self, file: &Path) -> Result<bool> {
         let cur_hash: Hash = Self::gen_hash(file).await?;
-        debug!("current file hash: {}", cur_hash);
+        info!("current file hash: {}", cur_hash);
 
         let cached_file_path = Self::to_cache_path(self, file)?;
 
@@ -34,7 +34,7 @@ impl Config {
         }
 
         let cached_contract = Self::read_from_cache(cached_file_path.as_path()).await?;
-        debug!("cached file hash: {}", cached_contract.contract_hash);
+        info!("cached file hash: {}", cached_contract.contract_hash);
 
         Ok(cur_hash != cached_contract.contract_hash)
     }

@@ -1,5 +1,4 @@
 pub mod attested;
-pub mod sequenced;
 pub mod session_create;
 pub mod session_set_pub_key;
 

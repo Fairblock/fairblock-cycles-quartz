@@ -56,7 +56,7 @@ async fn handshake(args: HandshakeRequest, config: Config) -> Result<String> {
                 2000000,
                 &config.tx_sender,
                 json!(res),
-                "0untrn"
+                "0ufairy"
             )
             .await
             .map_err(|err| eyre!(Box::new(err)))?// TODO: change
@@ -106,7 +106,7 @@ async fn handshake(args: HandshakeRequest, config: Config) -> Result<String> {
                 2000000,
                 &config.tx_sender,
                 json!(res),
-                "0untrn"
+                "0ufairy"
             )
             .await
             .map_err(|err| eyre!(Box::new(err)))? // todo change

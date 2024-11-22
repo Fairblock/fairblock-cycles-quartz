@@ -57,9 +57,9 @@ pub fn execute(
                 let mut state = STATE_PK.load(deps.storage)?;
                 let new_pub_key_value = &attr[1].value;
                 
-                state.public_keys.push(new_pub_key_value.to_string());
+                let _r = state.public_keys.push(new_pub_key_value.to_string());
                 
-                let _ = STATE_PK.save(deps.storage, &state)?;
+                STATE_PK.save(deps.storage, &state)?;
                 
                 return resp;
             }

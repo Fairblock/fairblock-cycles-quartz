@@ -46,32 +46,32 @@ pub async fn send_keyshare(
     index: u32,
     k256_sk: SigningKey,
 ) -> Result<()> {
-    // Step 1: Derive the key share using the `extract` function
+  
     let extracted_key = extract(share, identity.as_bytes().to_vec(), index).unwrap();
     println!("Derived General Key Share: {:?}", extracted_key);
 
-    // Step 2: Hash the fields for `k256` signing
+   
     let mut hasher = Sha256::new();
-    hasher.update(identity.as_bytes()); // id_value
-    hasher.update(&extracted_key); // key_share
-    hasher.update(index.to_le_bytes()); // key_share_index
+    hasher.update(identity.as_bytes()); 
+    hasher.update(&extracted_key); 
+    hasher.update(index.to_le_bytes()); 
     let k256_msg_hash = hasher.finalize();
     println!("message hash: {:?}", k256_msg_hash);
-    // Step 3: Sign the hash with the `k256` key
+    
     let k256_signature: Signature = k256_sk.sign(&k256_msg_hash);
 
-    // Convert the DER signature to raw format
+   
     let r = k256_signature.r();
     let s = k256_signature.s();
 
-// Convert r and s to 32-byte big-endian representations
+
     let mut raw_signature = Vec::with_capacity(64);
     raw_signature.extend_from_slice(&r.to_bytes());
     raw_signature.extend_from_slice(&s.to_bytes());
     let k256_signature_hex = hex::encode(raw_signature);
     println!("k256 Signature: {}", k256_signature_hex);
 
-    // Step 4: Cosmos key setup
+   
     let mut sender_private_key = secp256k1::SigningKey::random();
     let private_key_hex = "b1b38cfc3ce43d409acaabbbce6c6ae13c6c2a164311e6df0571a380a7439a8e";
 
@@ -86,7 +86,7 @@ pub async fn send_keyshare(
     let sender_public_key = sender_private_key.public_key();
     let acc_address = sender_public_key.account_id("fairy").unwrap().to_string();
     println!("account: {:?}", acc_address);
-    // Step 5: Create the MsgSubmitGeneralKeyshare message
+    
     let msg = MsgSubmitGeneralKeyshare {
         creator: acc_address.clone(),
         id_type: "private-gov-identity".to_string(),
@@ -98,7 +98,7 @@ pub async fn send_keyshare(
         signature:k256_signature_hex
     };
 
-    // Step 6: Fetch account information
+  
     let base_url = "http://127.0.0.1:1317/cosmos/auth/v1beta1/accounts";
     let url = format!("{}/{}", base_url, acc_address);
     let client = Client::new();
@@ -112,9 +112,9 @@ pub async fn send_keyshare(
         .unwrap()
         .parse()?;
 
-    // Step 7: Construct the transaction body
+    
     let chain_id: chain::Id = "fairyring".parse()?;
-    let gas = 100_000u64;
+    let gas = 1000_000u64;
     let timeout_height = 4294967294u32;
 
     let tx_body = tx::Body::new(
@@ -129,7 +129,7 @@ pub async fn send_keyshare(
     let signer_info = SignerInfo::single_direct(Some(sender_public_key), sequence_number);
     let auth_info = signer_info.auth_info(Fee::from_amount_and_gas(
         Coin {
-            amount: 100u128,
+            amount: 1000u128,
             denom: "ufairy".parse()?,
         },
         gas,
@@ -141,7 +141,7 @@ pub async fn send_keyshare(
     let tx_bytes = tx_signed.to_bytes()?;
     let tx_hex = hex::encode(tx_bytes);
 
-    // Step 8: Broadcast the transaction
+ 
     let response = timeout(Duration::from_secs(10), async {
         Client::new()
             .post(&format!(

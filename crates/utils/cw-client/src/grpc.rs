@@ -12,8 +12,7 @@ use cosmos_sdk_proto::{
         },
     },
     cosmwasm::wasm::v1::{
-        query_client::QueryClient as WasmdQueryClient, QueryRawContractStateRequest,
-        QuerySmartContractStateRequest,
+        query_client::QueryClient as WasmdQueryClient, QuerySmartContractStateRequest,
     },
     traits::Message,
     Any,
@@ -70,23 +69,12 @@ impl CwClient for GrpcClient {
             .map_err(|e| anyhow!("failed to deserialize JSON reponse: {}", e))
     }
 
-    async fn query_raw<R: DeserializeOwned + Default>(
+    fn query_raw<R: DeserializeOwned + Default>(
         &self,
-        contract: &Self::Address,
-        query: Self::RawQuery,
+        _contract: &Self::Address,
+        _query: Self::RawQuery,
     ) -> Result<R, Self::Error> {
-        let mut client = WasmdQueryClient::connect(self.url.to_string()).await?;
-
-        let raw_query_request = QueryRawContractStateRequest {
-            address: contract.to_string(),
-            query_data: query.to_string().into_bytes(),
-        };
-
-        let raw_query_response = client.raw_contract_state(raw_query_request).await?;
-
-        let raw_value = raw_query_response.into_inner().data;
-        serde_json::from_slice(&raw_value)
-            .map_err(|e| anyhow!("failed to deserialize JSON reponse: {}", e))
+        unimplemented!()
     }
 
     fn query_tx<R: DeserializeOwned + Default>(&self, _txhash: &str) -> Result<R, Self::Error> {
@@ -121,7 +109,7 @@ impl CwClient for GrpcClient {
             .map_err(|e| anyhow!("error querying account info: {}", e))?;
         let amount = Coin {
             amount: 11000u128,
-            denom: "untrn".parse().expect("hardcoded denom"),
+            denom: "ufairy".parse().expect("hardcoded denom"),
         };
         let tx_bytes = tx_bytes(
             &self.sk,
@@ -214,4 +202,66 @@ pub async fn send_tx(
     });
     let tx_response = client.broadcast_tx(request).await?;
     Ok(tx_response.into_inner())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::error::Error;
+
+    use serde_json::json;
+    use transfers_contract::msg::{execute::Request, QueryMsg::GetRequests};
+
+    use crate::{grpc::GrpcClient, CwClient};
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_query() -> Result<(), Box<dyn Error>> {
+        let sk = hex::decode("ffc4d3c9119e9e8263de08c0f6e2368ac5c2dacecfeb393f6813da7d178873d2")
+            .unwrap()
+            .as_slice()
+            .try_into()
+            .unwrap();
+        let url = "https://grpc-falcron.pion-1.ntrn.tech:80".parse().unwrap();
+        let contract = "neutron15ruzx9wvrupt9cffzsp6868uad2svhfym2nsgxm2skpeqr3qrd4q4uwk83"
+            .parse()
+            .unwrap();
+
+        let cw_client = GrpcClient::new(sk, url);
+        let resp: Vec<Request> = cw_client
+            .query_smart(&contract, json!(GetRequests {}))
+            .await?;
+        println!("{resp:?}");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_execute() -> Result<(), Box<dyn Error>> {
+        let sk = hex::decode("ffc4d3c9119e9e8263de08c0f6e2368ac5c2dacecfeb393f6813da7d178873d2")
+            .unwrap()
+            .as_slice()
+            .try_into()
+            .unwrap();
+        let url = "https://grpc-falcron.pion-1.ntrn.tech:80".parse().unwrap();
+        let contract = "neutron15ruzx9wvrupt9cffzsp6868uad2svhfym2nsgxm2skpeqr3qrd4q4uwk83"
+            .parse()
+            .unwrap();
+        let chain_id = "pion-1".parse().unwrap();
+
+        let cw_client = GrpcClient::new(sk, url);
+        let tx_hash = cw_client
+            .tx_execute(
+                &contract,
+                &chain_id,
+                2000000,
+                "/* unused since we're getting the account from the sk */",
+                json!([]),
+                "0ufairy",
+            )
+            .await?;
+        println!("{}", tx_hash);
+
+        Ok(())
+    }
 }

@@ -63,7 +63,7 @@ async fn deploy(
     let cw_client = CliClient::neutrond(config.node_url.clone());
 
     info!("🚀 Deploying {} Contract", args.label);
-    let code_id = if config.contract_has_changed(wasm_bin_path).await? {
+    let code_id = {
         let deploy_output: WasmdTxResponse = serde_json::from_str(
             &cw_client
                 .deploy(
@@ -100,11 +100,6 @@ async fn deploy(
             .wrap_err("Error saving contract code id to cache")?;
 
         code_id
-    } else {
-        config
-            .get_cached_codeid(wasm_bin_path)
-            .await
-            .wrap_err("Error getting contract code id from cache")?
     };
 
     info!("🚀 Communicating with Relay to Instantiate...");

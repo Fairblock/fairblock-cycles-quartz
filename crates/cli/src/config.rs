@@ -73,23 +73,23 @@ fn default_node_url() -> Url {
 }
 
 fn default_ws_url() -> Url {
-    "ws://127.0.0.1/websocket"
+    "ws://127.0.0.1:26659/websocket"
         .parse()
         .expect("valid hardcoded URL")
 }
 
 fn default_grpc_url() -> Url {
-    "http://127.0.0.1:9090"
+    "http://127.0.0.1:26659"
         .parse()
         .expect("valid hardcoded URL")
 }
 
 fn default_tx_sender() -> String {
-    String::from("admin")
+    String::from("star")
 }
 
 fn default_chain_id() -> ChainId {
-    "testing".parse().expect("default chain_id failed")
+    "fairyring".parse().expect("default chain_id failed")
 }
 
 fn default_port() -> u16 {

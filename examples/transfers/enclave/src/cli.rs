@@ -65,16 +65,16 @@ pub struct Cli {
     #[clap(long, default_value = "5")]
     pub max_block_lag: u64,
 
-    #[clap(long, default_value = "http://127.0.0.1:26657")]
+    #[clap(long, default_value = "http://127.0.0.1:26659")]
     pub node_url: Url,
 
-    #[clap(long, default_value = "ws://127.0.0.1/websocket")]
+    #[clap(long, default_value = "ws://127.0.0.1:26659/websocket")]
     pub ws_url: Url,
 
-    #[clap(long, default_value = "http://127.0.0.1:9090")]
+    #[clap(long, default_value = "http://127.0.0.1:26659")]
     pub grpc_url: Url,
 
-    #[clap(long, default_value = "admin")]
+    #[clap(long, default_value = "star")]
     pub tx_sender: String,
 }
 

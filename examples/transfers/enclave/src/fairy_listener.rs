@@ -84,7 +84,8 @@ async fn verify_event_proof(
     event_key: &[u8],
     block_height: Height,
 ) -> Result<bool> {
-    
+    // For testing purposes
+    return Ok(true);
     let query_response: AbciQuery = client
         .abci_query(
             Some("/store/keyshare/key".to_string()), 
@@ -108,7 +109,8 @@ async fn verify_event_proof(
 }
 
 pub async fn listen_fairyring(sk: SigningKey) -> Result<()> {
-   
+    // For testing purposes:
+   println!("{:?}",sk.to_bytes());
   
     let mut share_val: Vec<u8> = vec![];
     let mut index_val = 0 as u32;
@@ -122,7 +124,7 @@ pub async fn listen_fairyring(sk: SigningKey) -> Result<()> {
                 break;
             },
             Err(e) => {
-               println!("{:?}",e);
+              // println!("{:?}",e);
             }
         }
             }

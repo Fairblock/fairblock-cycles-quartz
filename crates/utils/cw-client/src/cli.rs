@@ -17,7 +17,7 @@ impl CliClientType {
     fn bin(&self) -> String {
         match self {
             CliClientType::Wasmd => "wasmd",
-            CliClientType::Neutrond => "neutrond",
+            CliClientType::Neutrond => "fairyringd",
         }
         .to_string()
     }
@@ -51,7 +51,7 @@ impl CliClient {
         Self {
             kind: CliClientType::Neutrond,
             url,
-            gas_price: "0.0053untrn".to_string(),
+            gas_price: "0.0053ufairy".to_string(),
         }
     }
 
@@ -106,7 +106,7 @@ impl CwClient for CliClient {
         Ok(query_result)
     }
 
-    async fn query_raw<R: DeserializeOwned + Default>(
+    fn query_raw<R: DeserializeOwned + Default>(
         &self,
         contract: &Self::Address,
         query: Self::RawQuery,
@@ -168,7 +168,7 @@ impl CwClient for CliClient {
             .args(["--amount", pay_amount])
             .args(["--gas", gas_amount])
             .args(["--gas-adjustment", "1.3"])
-            .args(["--gas-prices", "0.025untrn"])
+            .args(["--gas-prices", "0.025ufairy"])
             .args(["--from", sender])
             .args(["--output", "json"])
             .arg("-y");

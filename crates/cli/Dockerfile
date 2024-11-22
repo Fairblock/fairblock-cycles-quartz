@@ -52,4 +52,4 @@ RUN apt-get remove -y wget && \
 # Create a directory for the app
 RUN mkdir -p /opt/examples/transfers
 
-ENTRYPOINT ["quartz", "--mock-sgx", "--app-dir", "/opt/examples/transfers", "dev", "--unsafe-trust-latest", "--contract-manifest", "/opt/examples/transfers/contracts/Cargo.toml", "--init-msg", "{\"denom\":\"untrn\"}"]
+ENTRYPOINT ["quartz", "--mock-sgx", "--app-dir", "/opt/examples/transfers", "dev", "--unsafe-trust-latest", "--contract-manifest", "/opt/examples/transfers/contracts/Cargo.toml", "--init-msg", "{\"denom\":\"ufairy\"}"]

@@ -41,23 +41,23 @@ fn decrypt_share(sk: SigningKey, data: &[u8]) -> Result<Vec<u8>> {
 pub async fn get_key_share(
     sk: SigningKey,
 ) -> Result<(Vec<u8>,u64)> {
-    println!("looking for the keyshare...");
+    
     let base_url = "http://127.0.0.1:1317";
     let client = Client::new();
-
+  
+   
     let pub_key = get_active_pubkey(&client, base_url).await?;
 
- 
+   
     let target_enc_keyshare_list = &pub_key.active_pubkey.encrypted_keyshares;
    
     if target_enc_keyshare_list.is_empty() {
         return Err(eyre!("Encrypted shares array for target round is empty"));
     }
 
-
     for (index, enc_share) in target_enc_keyshare_list.iter().enumerate() {
         if enc_share.validator == "fairy1vghpa0tuzfza97cwyc085zxuhsyvy3jtgry7vv" {
-     
+           
             println!("Keyshare found...");
             let decoded_bytes = decode(enc_share.data.clone()).expect("Failed to decode Base64");
             println!("Decrypting the keyshare");

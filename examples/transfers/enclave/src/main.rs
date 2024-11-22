@@ -110,22 +110,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     loop {
-      
+        // Check if `sk` has been set by QuartzServer
         let maybe_key = match sk.lock() {
             Ok(guard) => guard.clone(),
             Err(e) => {
-                eprintln!("Mutex lock failed: {:?}", e);
+                eprintln!("Mutex lock failed: {:?}", e); 
                 None 
             }
         };
 
         if let Some(signing_key) = maybe_key {
-            // Once we have the key, we can pass it to `listen_fairyring`
+          
             listen_fairyring(signing_key).await?;
             break;
         }
 
-        
+       
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 
