@@ -1,12 +1,19 @@
 # Fairblock-Cycles-Quartz
 
-We plan to have our validators run the FairyringClient code inside TEEs to prevent their direct access to their shares. For this, we can use the provided Cycles-Quartz libraries to perform on-chain attestation of the TEEs by having a registration CosmWasm contract on FairyRing. The registration contract performs the handshake with validators' TEEs and stores their Public Keys (PKs).
+Fairblock-Cycles-Quartz leverages the Cycles-Quartz libraries to implement a framework for Fairyring validators to run the FairyringClient functionality inside a TEE and get attested on-chain.
 
-After the registration, the PKs will be fetched from the contract. Each validator's share will be encrypted with their registered PK, and the encrypted shares will be sent on-chain. The TEEs can fetch the shares and decrypt them inside the enclave using the corresponding Secret Key (SK). This way, the validators will have no knowledge of their shares.
+A CosmWasm contract is used for registration of the TEEs on Fairyring. The registration process envolves performing a handshake between the contract and an enclve. After a successful handshake, the contract stores the public key of the enclave in a list represnting the public keys of the registered TEEs. This list can later be queried for verification of the messages coming from inside the enclaves.
 
-Once there is a need for a decryption key, the event will be monitored by the enclave code and verified through the client proofs. Since we are verifying the chain state, we will use the Tendermint abci_query for verification. The keyshare will be extracted inside the enclave, then it will be signed using the SK (corresponding to the PK stored inside the CosmWasm contract) and sent on-chain. The signature can be verified on-chain using the registered PK to ensure that the request comes from inside the TEE, and then the extracted key can be used for aggregation.
+Once the validators are registered, their PKs are retrieved from the contract. Each validator's share is encrypted using their registered PK, and the encrypted shares are securely sent on-chain. The TEEs fetch these encrypted shares and perform decryption within the enclave using the corresponding secret key, ensuring that the validators themselves remain unaware of their shares.
 
-For the base of our implementation, we are using this provided Fairblock example.
-
+The enclave actively monitors the chain for decryption key requests. Once a decryption key is requested, the enclave code first validates it against the chain state. To validate the chain state, the Tendermint's abci_query mechanism is used. Upon validation, the required key share is securely extracted within the enclave, signed using the enclave's SK (corresponding to the PK stored on-chain), and then submitted back to the Fairyring. This signature is verified on chain using the stored PKs in the contract to ensure that the message originates from within the TEE. Following this verification, the extracted key is used for key aggregation.
 Below is a diagram of the steps:
 ![Fairblock-Cycles-Quartz](./cycles.png)
+We used the `Transfers` example as the base for our implementation. We also modified the cli code to deploy the contract on Fairyring.
+
+## Testing
+There is a test script (`test.sh`) for performing an end-to-end testing of the process. 
+[to be continued...]
+
+## Benchmarks
+[to be added...]
