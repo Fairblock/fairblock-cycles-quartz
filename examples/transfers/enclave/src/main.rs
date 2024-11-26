@@ -20,7 +20,7 @@ pub mod proto;
 pub mod transfers_server;
 pub mod tx;
 pub mod wslistener;
-use rand;
+
 use std::{
     sync::{Arc, Mutex},
     time::Duration,
@@ -30,7 +30,6 @@ use clap::Parser;
 use cli::Cli;
 use fairy_listener::listen_fairyring;
 
-
 use quartz_common::{
     contract::state::{Config, LightClientOpts},
     enclave::{
@@ -39,7 +38,6 @@ use quartz_common::{
     },
 };
 
-use tokio::time::sleep;
 use transfers_server::TransfersService;
 
 #[tokio::main(flavor = "current_thread")]
@@ -80,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args.dcap_verifier_contract.map(|c| c.to_string()),
     );
 
-    let mut ws_config = WsListenerConfig {
+    let ws_config = WsListenerConfig {
         node_url: args.node_url,
         ws_url: args.ws_url,
         grpc_url: args.grpc_url,
@@ -110,22 +108,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     loop {
-        // Check if `sk` has been set by QuartzServer
         let maybe_key = match sk.lock() {
             Ok(guard) => guard.clone(),
             Err(e) => {
-                eprintln!("Mutex lock failed: {:?}", e); 
-                None 
+                eprintln!("Mutex lock failed: {:?}", e);
+                None
             }
         };
 
         if let Some(signing_key) = maybe_key {
-          
             listen_fairyring(signing_key).await?;
             break;
         }
 
-       
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 

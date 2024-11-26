@@ -10,14 +10,14 @@ use crate::CwClient;
 #[derive(Clone, Debug)]
 pub enum CliClientType {
     Wasmd,
-    Neutrond,
+    Fairyringd,
 }
 
 impl CliClientType {
     fn bin(&self) -> String {
         match self {
             CliClientType::Wasmd => "wasmd",
-            CliClientType::Neutrond => "fairyringd",
+            CliClientType::Fairyringd => "fairyringd",
         }
         .to_string()
     }
@@ -47,9 +47,9 @@ impl CliClient {
         }
     }
 
-    pub fn neutrond(url: Url) -> Self {
+    pub fn Fairyringd(url: Url) -> Self {
         Self {
-            kind: CliClientType::Neutrond,
+            kind: CliClientType::Fairyringd,
             url,
             gas_price: "0.0053ufairy".to_string(),
         }
@@ -259,7 +259,7 @@ impl CwClient for CliClient {
 
         let sync_info = match self.kind {
             CliClientType::Wasmd => "SyncInfo",
-            CliClientType::Neutrond => "sync_info",
+            CliClientType::Fairyringd => "sync_info",
         };
         let trusted_height = query_result[sync_info]["latest_block_height"]
             .as_str()

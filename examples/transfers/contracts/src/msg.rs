@@ -3,7 +3,6 @@ use quartz_common::contract::{
     msg::execute::attested::{RawAttested, RawAttestedMsgSansHandler, RawDefaultAttestation},
     prelude::*,
 };
-
 pub type AttestedMsg<M, RA = RawDefaultAttestation> = RawAttested<RawAttestedMsgSansHandler<M>, RA>;
 
 #[cw_serde]
@@ -21,8 +20,6 @@ pub enum QueryMsg {
 pub enum ExecuteMsg<RA = RawDefaultAttestation> {
     // Quartz message for initializing sessions and setting public keys
     Quartz(QuartzExecuteMsg<RA>),
-
-
 }
 
 pub mod execute {

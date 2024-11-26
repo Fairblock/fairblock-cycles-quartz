@@ -1,35 +1,15 @@
-use std::{
-    collections::{btree_map::Entry, BTreeMap},
-    sync::{Arc, Mutex},
-};
-
+use std::sync::{Arc, Mutex};
 use cosmrs::AccountId;
-use cosmwasm_std::{Addr, HexBinary, Uint128};
-use ecies::{decrypt, encrypt};
-use k256::ecdsa::{SigningKey, VerifyingKey};
+use cosmwasm_std::HexBinary;
+use k256::ecdsa::SigningKey;
 use quartz_common::{
-    contract::{
-        msg::execute::attested::{HasUserData, RawAttested},
-        state::{Config, UserData},
-    },
+    contract::state::Config,
     enclave::{
         attestor::Attestor,
-        server::{IntoServer, ProofOfPublication, WsListenerConfig},
+        server::{IntoServer, WsListenerConfig},
     },
 };
-use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
-use tokio::sync::mpsc::Sender;
-use tonic::{Request, Response, Result as TonicResult, Status};
-
-
-use crate::{
-    proto::{
-        settlement_server::{Settlement, SettlementServer},
-        QueryRequest, QueryResponse, UpdateRequest, UpdateResponse,
-    },
-  
-};
+use crate::proto::settlement_server::{Settlement, SettlementServer};
 
 impl<A: Attestor> IntoServer for TransfersService<A> {
     type Server = SettlementServer<TransfersService<A>>;
@@ -41,14 +21,9 @@ impl<A: Attestor> IntoServer for TransfersService<A> {
 
 pub type RawCipherText = HexBinary;
 
-
-
-
-
 #[derive(Clone, Debug)]
 pub struct TransfersOp<A: Attestor> {
     pub client: TransfersService<A>,
-   
     pub config: WsListenerConfig,
 }
 
@@ -58,7 +33,6 @@ pub struct TransfersService<A: Attestor> {
     contract: Arc<Mutex<Option<AccountId>>>,
     sk: Arc<Mutex<Option<SigningKey>>>,
     attestor: A,
- 
 }
 
 impl<A> TransfersService<A>
@@ -70,14 +44,12 @@ where
         contract: Arc<Mutex<Option<AccountId>>>,
         sk: Arc<Mutex<Option<SigningKey>>>,
         attestor: A,
-     
     ) -> Self {
         Self {
             config,
             contract,
             sk,
             attestor,
-        
         }
     }
 }
@@ -87,6 +59,4 @@ impl<A> Settlement for TransfersService<A>
 where
     A: Attestor + Send + Sync + 'static,
 {
-
 }
-

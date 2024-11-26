@@ -1,14 +1,13 @@
-use cosmwasm_std::{
-    entry_point, to_json_binary, Binary, Deps, DepsMut, Env, HexBinary, MessageInfo, Response,
-    StdResult,
-};
-use quartz_common::contract::handler::RawHandler;
-
 use crate::{
     error::ContractError,
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
     state::{ContractState, STATE, STATE_PK},
 };
+use cosmwasm_std::{
+    entry_point, to_json_binary, Binary, Deps, DepsMut, Env, HexBinary, MessageInfo, Response,
+    StdResult,
+};
+use quartz_common::contract::handler::RawHandler;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -51,16 +50,14 @@ pub fn execute(
                 let resp = msg
                     .handle_raw(deps.branch(), &env, &info)
                     .map_err(Into::into);
-                
-                let attr = resp.as_ref().unwrap().attributes.clone();
 
+                let attr = resp.as_ref().unwrap().attributes.clone();
                 let mut state = STATE_PK.load(deps.storage)?;
                 let new_pub_key_value = &attr[1].value;
-                
                 let _r = state.public_keys.push(new_pub_key_value.to_string());
-                
+
                 STATE_PK.save(deps.storage, &state)?;
-                
+
                 return resp;
             }
         },

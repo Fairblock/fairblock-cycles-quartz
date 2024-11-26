@@ -1,15 +1,9 @@
-use cosmos_sdk_proto::cosmos::tx::v1beta1::{BroadcastMode, TxBody};
-use cosmos_sdk_proto::cosmos::tx::v1beta1::{service_client::ServiceClient as TxServiceClient};
 use cosmrs::tendermint::chain;
 use cosmrs::{tx, Any};
-use cosmrs::{
-    tx::{Fee, SignDoc, SignerInfo},
-    AccountId, Coin,
-};
-
+use cosmrs::Coin;
+use cosmrs::tx::{Fee, SignDoc, SignerInfo};
 use k256::ecdsa::{SigningKey, Signature, signature::Signer};
-use cosmrs::crypto::{secp256k1, PublicKey};
-
+use cosmrs::crypto::secp256k1;
 use reqwest::Client;
 use prost::Message;
 use eyre::Result;
@@ -17,8 +11,7 @@ use hex::{self, FromHex};
 use serde_json::Value;
 use sha2::{Sha256, Digest};
 use tokio::time::{timeout, Duration};
-use tendermint::chain::Id as ChainId;
-use crate::extract::{self, extract};
+use crate::extract::extract;
 
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MsgSubmitGeneralKeyshare {
@@ -46,47 +39,37 @@ pub async fn send_keyshare(
     index: u32,
     k256_sk: SigningKey,
 ) -> Result<()> {
-  
     let extracted_key = extract(share, identity.as_bytes().to_vec(), index).unwrap();
     println!("Derived General Key Share: {:?}", extracted_key);
 
-   
     let mut hasher = Sha256::new();
-    hasher.update(identity.as_bytes()); 
-    hasher.update(&extracted_key); 
-    hasher.update(index.to_le_bytes()); 
+    hasher.update(identity.as_bytes());
+    hasher.update(&extracted_key);
+    hasher.update(index.to_le_bytes());
     let k256_msg_hash = hasher.finalize();
     println!("message hash: {:?}", k256_msg_hash);
-    
+
     let k256_signature: Signature = k256_sk.sign(&k256_msg_hash);
 
-   
-    let r = k256_signature.r();
-    let s = k256_signature.s();
-
-
     let mut raw_signature = Vec::with_capacity(64);
-    raw_signature.extend_from_slice(&r.to_bytes());
-    raw_signature.extend_from_slice(&s.to_bytes());
+    raw_signature.extend_from_slice(&k256_signature.r().to_bytes());
+    raw_signature.extend_from_slice(&k256_signature.s().to_bytes());
     let k256_signature_hex = hex::encode(raw_signature);
     println!("k256 Signature: {}", k256_signature_hex);
 
-   
     let mut sender_private_key = secp256k1::SigningKey::random();
     let private_key_hex = "b1b38cfc3ce43d409acaabbbce6c6ae13c6c2a164311e6df0571a380a7439a8e";
 
-    match Vec::from_hex(private_key_hex) {
-        Ok(private_key_bytes) => match secp256k1::SigningKey::from_slice(&private_key_bytes) {
-            Ok(signing_key) => sender_private_key = signing_key,
-            Err(e) => println!("Error creating signing key: {}", e),
-        },
-        Err(e) => println!("Error decoding hex: {}", e),
+    if let Ok(private_key_bytes) = Vec::from_hex(private_key_hex) {
+        if let Ok(signing_key) = secp256k1::SigningKey::from_slice(&private_key_bytes) {
+            sender_private_key = signing_key;
+        }
     }
 
     let sender_public_key = sender_private_key.public_key();
     let acc_address = sender_public_key.account_id("fairy").unwrap().to_string();
     println!("account: {:?}", acc_address);
-    
+
     let msg = MsgSubmitGeneralKeyshare {
         creator: acc_address.clone(),
         id_type: "private-gov-identity".to_string(),
@@ -95,10 +78,9 @@ pub async fn send_keyshare(
         keyshare_index: index as u64,
         received_timestamp: 4294967294,
         received_block_height: 4294967294,
-        signature:k256_signature_hex
+        signature: k256_signature_hex,
     };
 
-  
     let base_url = "http://127.0.0.1:1317/cosmos/auth/v1beta1/accounts";
     let url = format!("{}/{}", base_url, acc_address);
     let client = Client::new();
@@ -112,9 +94,8 @@ pub async fn send_keyshare(
         .unwrap()
         .parse()?;
 
-    
     let chain_id: chain::Id = "fairyring".parse()?;
-    let gas = 1000_000u64;
+    let gas = 1_000_000u64;
     let timeout_height = 4294967294u32;
 
     let tx_body = tx::Body::new(
@@ -122,7 +103,7 @@ pub async fn send_keyshare(
             type_url: "/fairyring.keyshare.MsgSubmitGeneralKeyshare".to_owned(),
             value: msg.encode_to_vec(),
         }],
-        "", 
+        "",
         timeout_height,
     );
 
@@ -141,7 +122,6 @@ pub async fn send_keyshare(
     let tx_bytes = tx_signed.to_bytes()?;
     let tx_hex = hex::encode(tx_bytes);
 
- 
     let response = timeout(Duration::from_secs(10), async {
         Client::new()
             .post(&format!(
@@ -150,7 +130,7 @@ pub async fn send_keyshare(
             ))
             .send()
             .await?
-            .json::<serde_json::Value>()
+            .json::<Value>()
             .await
     })
     .await??;

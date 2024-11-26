@@ -1,8 +1,6 @@
 use std::fmt;
 
-use ark_bls12_381::{
-    g1, g2, Bls12_381, Fr as ScalarField, G1Affine, G1Projective, G2Affine, G2Projective,
-};
+use ark_bls12_381::{g2, Fr as ScalarField, G2Projective};
 use ark_ec::{
     hashing::{curve_maps::wb::WBMap, map_to_curve_hasher::MapToCurveBasedHasher, HashToCurve},
     models::short_weierstrass,
@@ -21,8 +19,8 @@ pub const G2_DOMAIN: &[u8] = b"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_";
 // Structs
 #[derive(Clone)]
 pub struct ExtractedKey {
-    pub(crate) sk: G2Projective, 
-    pub(crate) index: u32,       
+    pub(crate) sk: G2Projective,
+    pub(crate) index: u32,
 }
 use sha2;
 impl Serialize for ExtractedKey {
@@ -30,15 +28,14 @@ impl Serialize for ExtractedKey {
     where
         S: Serializer,
     {
-        
         let mut state = serializer.serialize_struct("ExtractedKey", 2)?;
 
-        
         let mut compressed_sk = Vec::new();
-        self.sk.serialize_compressed(&mut compressed_sk).map_err(serde::ser::Error::custom)?; 
-        state.serialize_field("sk", &compressed_sk)?; 
+        self.sk
+            .serialize_compressed(&mut compressed_sk)
+            .map_err(serde::ser::Error::custom)?;
+        state.serialize_field("sk", &compressed_sk)?;
 
-        
         state.serialize_field("index", &self.index)?;
 
         state.end()
@@ -63,15 +60,15 @@ impl<'de> Deserialize<'de> for ExtractedKey {
             where
                 V: SeqAccess<'de>,
             {
-               
-                let sk_bytes: Vec<u8> =
-                    seq.next_element()?.ok_or_else(|| de::Error::invalid_length(0, &self))?;
+                let sk_bytes: Vec<u8> = seq
+                    .next_element()?
+                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
                 let sk =
                     G2Projective::deserialize_compressed(&*sk_bytes).map_err(de::Error::custom)?;
 
-              
-                let index: u32 =
-                    seq.next_element()?.ok_or_else(|| de::Error::invalid_length(1, &self))?;
+                let index: u32 = seq
+                    .next_element()?
+                    .ok_or_else(|| de::Error::invalid_length(1, &self))?;
 
                 Ok(ExtractedKey { sk, index })
             }
@@ -91,10 +88,11 @@ pub fn extract(share: Vec<u8>, id: Vec<u8>, index: u32) -> Result<Vec<u8>, Strin
     let m = mapper.hash(&id).unwrap();
     let qid = G2Projective::from(m);
     let keyshare = qid * share_scalar;
-    let key = ExtractedKey { sk: keyshare, index };
-    let mut serialized = serde_json::to_string(&key).unwrap();
-   
- 
+    let key = ExtractedKey {
+        sk: keyshare,
+        index,
+    };
+    let serialized = serde_json::to_string(&key).unwrap();
+
     return Ok(serialized.into_bytes());
 }
-

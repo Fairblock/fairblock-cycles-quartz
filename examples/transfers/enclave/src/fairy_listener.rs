@@ -1,22 +1,17 @@
 use anyhow::{Result, Context};
 use ics23::HostFunctionsManager;
 use k256::ecdsa::SigningKey;
-use quartz_common::enclave::server::WsListenerConfig;
-use std::sync::{Arc, Mutex};
-use std::{fs};
 use tendermint::block::Height;
 use tendermint::merkle::proof::ProofOps;
 use tendermint_rpc::endpoint::abci_query::AbciQuery;
 use ics23::{verify_membership, CommitmentProof};
 use prost::Message;
+use hex::encode;
 use tendermint_rpc::event::Event;
 use tendermint_rpc::query::Query;
 use tendermint_rpc::Client;
 use tendermint_rpc::{self as rpc, SubscriptionClient};
 use tokio_stream::StreamExt;
-use serde_json;
-use tokio::time::Duration;
-
 use crate::get_share::get_key_share;
 use crate::tx::send_keyshare;
 
@@ -110,10 +105,11 @@ async fn verify_event_proof(
 
 pub async fn listen_fairyring(sk: SigningKey) -> Result<()> {
     // For testing purposes:
-   println!("{:?}",sk.to_bytes());
+    let sk_hex = encode(sk.to_bytes());
+    println!("sk:{:?}",sk_hex);
   
     let mut share_val: Vec<u8> = vec![];
-    let mut index_val = 0 as u32;
+    let mut index_val = 0;
       loop {
         
            let result = get_key_share(sk.clone()).await;
@@ -129,7 +125,7 @@ pub async fn listen_fairyring(sk: SigningKey) -> Result<()> {
         }
             }
         
-    let (mut client, driver) = rpc::WebSocketClient::new("ws://127.0.0.1:26659/websocket").await
+    let (client, driver) = rpc::WebSocketClient::new("ws://127.0.0.1:26659/websocket").await
         .context("Failed to create WebSocket client")?;
     let http_client = rpc::HttpClient::new("http://127.0.0.1:26659").context("Failed to create HTTP client")?;
 

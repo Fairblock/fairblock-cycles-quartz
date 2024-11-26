@@ -1,5 +1,4 @@
 use std::{env, net::SocketAddr};
-
 use clap::Parser;
 use color_eyre::eyre::{eyre, Result};
 use cosmrs::AccountId;

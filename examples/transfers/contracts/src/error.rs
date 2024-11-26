@@ -24,8 +24,4 @@ pub enum ContractError {
     CwUtil(PaymentError),
 }
 
-impl From<PaymentError> for ContractError {
-    fn from(e: PaymentError) -> Self {
-        Self::CwUtil(e)
-    }
-}
+
