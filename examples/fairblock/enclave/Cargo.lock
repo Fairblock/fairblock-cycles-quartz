@@ -1499,6 +1499,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fairblock-contract"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus",
+ "cw-utils",
+ "getrandom",
+ "quartz-common",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+ "thiserror",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2843,7 +2859,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "quartz-app-transfers-enclave"
+name = "quartz-app-fairblock-enclave"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -2863,6 +2879,7 @@ dependencies = [
  "cw-multi-test",
  "ecies",
  "eyre",
+ "fairblock-contract",
  "futures",
  "futures-util",
  "hex",
@@ -2887,7 +2904,6 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tracing",
- "transfers-contract",
 ]
 
 [[package]]
@@ -4483,22 +4499,6 @@ dependencies = [
  "thread_local",
  "tracing",
  "tracing-core",
-]
-
-[[package]]
-name = "transfers-contract"
-version = "0.1.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-storage-plus",
- "cw-utils",
- "getrandom",
- "quartz-common",
- "serde",
- "serde_json",
- "sha2 0.10.8",
- "thiserror",
 ]
 
 [[package]]

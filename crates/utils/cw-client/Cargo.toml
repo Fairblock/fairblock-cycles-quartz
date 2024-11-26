@@ -34,4 +34,4 @@ tendermint = { workspace = true, default-features = false }
 
 [dev-dependencies]
 tokio.workspace = true
-transfers-contract = { path = "../../../examples/transfers/contracts" }
+fairblock-contract = { path = "../../../examples/fairblock/contracts" }

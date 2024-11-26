@@ -1,7 +1,7 @@
 [workspace]
 
 [package]
-name = "quartz-app-transfers-enclave"
+name = "quartz-app-fairblock-enclave"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75.0"
@@ -10,7 +10,7 @@ readme = "README.md"
 repository = "https://github.com/informalsystems/cycles-quartz"
 homepage = "https://cycles.money"
 authors = ["Informal Systems <hello@informal.systems>"]
-default-run = "quartz-app-transfers-enclave"
+default-run = "quartz-app-fairblock-enclave"
 description = """
 """
 
@@ -82,7 +82,7 @@ tendermint-rpc = { version = "=0.38.1", default-features = false }
 tendermint-light-client = { version = "=0.38.1", default-features = false, features = [
     "rust-crypto",
 ] }
-transfers-contract = { path = "../contracts", default-features = false }
+fairblock-contract = { path = "../contracts", default-features = false }
 
 # quartz
 cw-client = { version = "0.1.0", default-features = false }

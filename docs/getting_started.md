@@ -31,7 +31,7 @@ This guide will help you get up and running with an example Quartz application. 
 
 ## Quick Start
 
-For those who want to get started quickly with the example Transfers app with
+For those who want to get started quickly with the example Fairblock app with
 mock SGX:
 
 1. Install dependencies (Rust, docker)
@@ -45,7 +45,7 @@ For more detailed background and instructions, read on.
 ## Simple Example - Local Mock SGX Application
 
 Quartz includes a simple example we call the `Transfer` application,
-located in [/examples/transfers](/examples/transfers), that comes with a Keplr-based
+located in [/examples/fairblock](/examples/fairblock), that comes with a Keplr-based
 frontend. It's a simple demo app designed to showcase very basic use of the Quartz framework.
 It allows users to deposit funds into a contract,
 transfer them privately within the contract's encrypted state (updated by the
@@ -70,7 +70,7 @@ setup. For more on building application, see
 - [Building Apps](/docs/building_apps.md) - conceptual overview
 - [quartz-contract-core](/crates/contracts/core/) - main library. provides msgs and handlers
   for the handshake and for verifying attestations
-- [transfers contracts](/examples/transfers/contracts): transfer app example itself
+- [fairblock contracts](/examples/fairblock/contracts): transfer app example itself
 
 Onwards with the installation and running our example app!
 
@@ -157,7 +157,7 @@ docker compose up node
 
 It will pre-configure a few keys (admin, alice, etc.) and allocate funds to them.
 The default sending account for txs is `admin`, as specified in
-`examples/transfers/quartz.toml`.
+`examples/fairblock/quartz.toml`.
 However, these accounts are setup in the docker image. Because we will be deploying our contracts outside of the docker image
 we need to have these accounts imported locally. You can do this by install neutrond locally and importing the accounts:
 
@@ -183,7 +183,7 @@ tail -n 1 neutrond/data/accounts/admin.txt  | neutrond keys add admin  --no-back
 If you already have a key called `admin` in your keystore you'll have to rename it first.
 
 If you want to use a different name then `admin`, be sure to also change it in
-the `examples/transfers/quartz.toml` and everywhere we use it below.
+the `examples/fairblock/quartz.toml` and everywhere we use it below.
 
 Check that the key is there:
 
@@ -196,7 +196,7 @@ And you're good to go!
 ### Local neutrond Testnet Without SGX
 
 From the root of the `cycles-quartz` repo, we can now deploy our example
-transfers app. Deployment involves three components:
+fairblock app. Deployment involves three components:
 
 - the enclave
 - the smart contract
@@ -236,10 +236,10 @@ First we build and run the enclave code.
 Quartz provides a `--mock-sgx` flag so we can deploy locally for testing and
 development purposes without needing access to an SGX core.
 
-We can run everything from within the `examples/transfers` dir in this repo. To run
-from elsewhere by specify a path, eg. from the root of the repo with `--app-dir examples/transfers`.
+We can run everything from within the `examples/fairblock` dir in this repo. To run
+from elsewhere by specify a path, eg. from the root of the repo with `--app-dir examples/fairblock`.
 
-Now, from `examples/transfers`:
+Now, from `examples/fairblock`:
 
 1. Build the enclave binary:
 
@@ -271,8 +271,8 @@ continue.
    ```
 
 Note our contract takes initialization data in the `--init-msg` which for
-the transfers app specifies the asset denom that can be used in this deployment. The
-transfers app is currently single asset only.
+the fairblock app specifies the asset denom that can be used in this deployment. The
+fairblock app is currently single asset only.
 
 If successful, it will print the resulting contract address. Save it to an
 environment variable:
@@ -309,7 +309,7 @@ You can run the front end on your local computer, so it is easy to test in a bro
 1. Navigate to the frontend folder:
 
    ```bash
-   cd examples/transfers/frontend
+   cd examples/fairblock/frontend
    ```
 
 2. Install dependencies:
@@ -484,7 +484,7 @@ Now everything is installed and ready and we can start running quartz:
 export TCBINFO_CONTRACT=neutron1anj45ushmjntew7zrg5jw2rv0rwfce3nl5d655mzzg8st0qk4wjsds4wps
 export DCAP_CONTRACT=neutron18f3xu4yazfqr48wla9dwr7arn8wfm57qfw8ll6y02qsgmftpft6qfec3uf
 export ADMIN_SK=ffc4d3c9119e9e8263de08c0f6e2368ac5c2dacecfeb393f6813da7d178873d2
-cd examples/transfers
+cd examples/fairblock
 
 # retrieve the FMSPC from your machine
 quartz print-fmspc
@@ -521,8 +521,8 @@ You can use a remote enclave machine by setting the following env var:
 ```bash
 QUARTZ_NODE_URL=<YOUR_IP_ADDR>:11090
 # You can now use that enclave to deploy
-cd examples/transfers
-quartz contract deploy  --contract-manifest "examples/transfers/contracts/Cargo.toml"   --init-msg '{"denom":"untrn"}'
+cd examples/fairblock
+quartz contract deploy  --contract-manifest "examples/fairblock/contracts/Cargo.toml"   --init-msg '{"denom":"untrn"}'
 ```
 
 ### Other Testnets With SGX

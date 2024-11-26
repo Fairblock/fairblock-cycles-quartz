@@ -17,7 +17,7 @@ pub mod extract;
 pub mod fairy_listener;
 pub mod get_share;
 pub mod proto;
-pub mod transfers_server;
+pub mod fairblock_server;
 pub mod tx;
 pub mod wslistener;
 
@@ -38,7 +38,7 @@ use quartz_common::{
     },
 };
 
-use transfers_server::TransfersService;
+use fairblock_server::FairblockService;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -102,7 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             attestor.clone(),
             ws_config.clone(),
         )
-        .add_service(TransfersService::new(config, contract, sk_clone2, attestor))
+        .add_service(FairblockService::new(config, contract, sk_clone2, attestor))
         .serve(args.rpc_addr)
         .await;
     });

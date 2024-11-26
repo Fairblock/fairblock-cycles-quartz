@@ -73,22 +73,22 @@ height of that block is the height of the response from the above command minus
 
 ## Building
 
-As an example, to build a Docker image for the transfers app's enclave:
+As an example, to build a Docker image for the fairblock app's enclave:
 
 ```bash
 # From the root of the cycles-quartz repository
 docker build \
    --platform linux/amd64 \
-   --build-arg ENCLAVE_DIR=apps/transfers/enclave \
-   --build-arg ENCLAVE_BIN=quartz-app-transfers-enclave \
+   --build-arg ENCLAVE_DIR=apps/fairblock/enclave \
+   --build-arg ENCLAVE_BIN=quartz-app-fairblock-enclave \
    --build-arg TRUSTED_HEIGHT=1234 \
    --build-arg TRUSTED_HASH=0123456789abcdef \
-   -t informaldev/transfers-enclave \
+   -t informaldev/fairblock-enclave \
    -f ./docker/enclave-sgx/Dockerfile \
    .
 ```
 
-This builds an image tagged `informaldev/transfers-enclave:latest`.
+This builds an image tagged `informaldev/fairblock-enclave:latest`.
 
 The following build arguments are important:
 
@@ -110,7 +110,7 @@ On an SGX-enabled machine:
 docker run --rm -it \
    --device /dev/sgx_enclave \
    --device /dev/sgx_provision \
-   informaldev/transfers-enclave
+   informaldev/fairblock-enclave
 ```
 
 [gramine-docker]: https://hub.docker.com/r/gramineproject/gramine

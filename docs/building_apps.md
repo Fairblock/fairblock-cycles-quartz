@@ -26,7 +26,7 @@ TEE code is written in Rust and compiled via Gramine to run on Intel SGX enclave
 App devs need to design their smart contracts and their enclave code in tandem to work together. 
 Note that enclave code is not restricted to be CosmWasm, but can be (practically) arbitrary Rust.
 
-See the [transfers app][transfers_app] for a very simplistic example of a quartz
+See the [fairblock app][fairblock_app] for a very simplistic example of a quartz
 application.
 
 For background on basic TEE components and how Quartz works, see [How it
@@ -103,7 +103,7 @@ The enclave code can then produce a remote attestation of the result, and
 optionally a zero-knowledge proof (ZKP) of execution.
 
 
-[transfers_app]: /examples/transfers
+[fairblock_app]: /examples/fairblock
 [how_it_works]: /docs/how_it_works.md
 [poetic]: https://poeticte.ch/
 [automata-pccs]: https://blog.ata.network/bringing-intel-sgx-pccs-on-chain-d5917878bf54

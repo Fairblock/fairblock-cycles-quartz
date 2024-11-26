@@ -63,8 +63,8 @@ Quartz provides developers three main tools:
 - a rust library (`quartz-enclave-core`) for building blockchain constrained SGX enclaves
 - a cli tool (`quartz`) for connecting the contract and the enclave.
 
-This repo contains an example, [`transfers`](/examples/transfers), which combines these
-tools into a working private transfers application, complete with a Keplr-based
+This repo contains an example, [`fairblock`](/examples/fairblock), which combines these
+tools into a working private fairblock application, complete with a Keplr-based
 frontend.
 
 ### Smart Contract Lib

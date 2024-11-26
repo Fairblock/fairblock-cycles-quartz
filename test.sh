@@ -15,7 +15,7 @@ make fresh-chain > fairyring_chain.log 2>&1 &
 cd ../fairblock-cycles-quartz
 cargo install --path crates/cli
 
-cd examples/transfers
+cd examples/fairblock
 
 quartz --mock-sgx enclave build
 quartz --mock-sgx contract build --contract-manifest "contracts/Cargo.toml"

@@ -1,4 +1,4 @@
-name: "transfers"
+name: "fairblock"
 
 volumes:
   data:

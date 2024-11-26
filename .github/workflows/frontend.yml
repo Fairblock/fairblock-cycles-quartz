@@ -3,10 +3,10 @@ on:
   pull_request:
     paths:
       - .github/workflows/frontend.yml
-      - examples/transfers/frontend/**
+      - examples/fairblock/frontend/**
 defaults:
   run:
-    working-directory: examples/transfers/frontend
+    working-directory: examples/fairblock/frontend
 jobs:
   linting:
     runs-on: ubuntu-latest

@@ -1,7 +1,7 @@
 # Quartz-based app manifest file
 
 loader.entrypoint.uri = "file:{{ gramine.libos }}"
-libos.entrypoint = "{{ quartz_dir }}/target/release/quartz-app-transfers-enclave"
+libos.entrypoint = "{{ quartz_dir }}/target/release/quartz-app-fairblock-enclave"
 
 loader.log_level = "{{ log_level }}"
 
@@ -23,7 +23,7 @@ loader.env.SSL_CERT_FILE = { passthrough = true }
 loader.env.ADMIN_SK = { passthrough = true }
 loader.insecure__use_host_env = true
 
-loader.argv = ["quartz-app-transfers-enclave",
+loader.argv = ["quartz-app-fairblock-enclave",
                 "--chain-id", "{{ chain_id }}",
                 "--fmspc", "{{ fmspc }}",
                 "--tcbinfo-contract", "{{ tcbinfo_contract }}",

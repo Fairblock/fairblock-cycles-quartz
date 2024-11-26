@@ -59,7 +59,7 @@ neutrond keys add admin
 
 If you already have a key called `admin` in your keystore it's advised to rename it first.
 If you want to use a different name then `admin`, be sure to also change it in
-the `examples/transfers/quartz.toml` and everywhere we use it below.
+the `examples/fairblock/quartz.toml` and everywhere we use it below.
 
 This should output a neutron address. 
 

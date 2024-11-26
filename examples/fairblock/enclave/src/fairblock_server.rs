@@ -11,8 +11,8 @@ use quartz_common::{
 };
 use crate::proto::settlement_server::{Settlement, SettlementServer};
 
-impl<A: Attestor> IntoServer for TransfersService<A> {
-    type Server = SettlementServer<TransfersService<A>>;
+impl<A: Attestor> IntoServer for FairblockService<A> {
+    type Server = SettlementServer<FairblockService<A>>;
 
     fn into_server(self) -> Self::Server {
         SettlementServer::new(self)
@@ -22,20 +22,20 @@ impl<A: Attestor> IntoServer for TransfersService<A> {
 pub type RawCipherText = HexBinary;
 
 #[derive(Clone, Debug)]
-pub struct TransfersOp<A: Attestor> {
-    pub client: TransfersService<A>,
+pub struct FairblockOp<A: Attestor> {
+    pub client: FairblockService<A>,
     pub config: WsListenerConfig,
 }
 
 #[derive(Clone, Debug)]
-pub struct TransfersService<A: Attestor> {
+pub struct FairblockService<A: Attestor> {
     config: Config,
     contract: Arc<Mutex<Option<AccountId>>>,
     sk: Arc<Mutex<Option<SigningKey>>>,
     attestor: A,
 }
 
-impl<A> TransfersService<A>
+impl<A> FairblockService<A>
 where
     A: Attestor,
 {
@@ -55,7 +55,7 @@ where
 }
 
 #[tonic::async_trait]
-impl<A> Settlement for TransfersService<A>
+impl<A> Settlement for FairblockService<A>
 where
     A: Attestor + Send + Sync + 'static,
 {

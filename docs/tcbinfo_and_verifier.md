@@ -94,8 +94,8 @@ DCAP_CONTRACT=$(wasmd query wasm list-contract-by-code "$CODE_ID" --output json 
 
 ## Quartz setup
 ```bash
-quartz --app-dir "../examples/transfers/" \
-    --contract-manifest "../examples/transfers/contracts/Cargo.toml" \
+quartz --app-dir "../examples/fairblock/" \
+    --contract-manifest "../examples/fairblock/contracts/Cargo.toml" \
     --unsafe-trust-latest \
     --init-msg '{"denom":"ucosm"}' \
      dev \

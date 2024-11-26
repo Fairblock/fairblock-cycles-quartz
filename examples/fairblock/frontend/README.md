@@ -39,9 +39,9 @@ Required environment variables:
 ```
 # Choose target chain configuration
 NEXT_PUBLIC_TARGET_CHAIN=<localWasm | localNeutron | doWasm>
-# Enclave public key to encrypt transfers
+# Enclave public key to encrypt fairblock
 NEXT_PUBLIC_ENCLAVE_PUBLIC_KEY=<public_key>
-# Target transfers contract
+# Target fairblock contract
 NEXT_PUBLIC_TRANSFERS_CONTRACT_ADDRESS=<contract_address>
 ```
 

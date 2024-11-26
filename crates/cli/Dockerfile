@@ -50,6 +50,6 @@ RUN apt-get remove -y wget && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a directory for the app
-RUN mkdir -p /opt/examples/transfers
+RUN mkdir -p /opt/examples/fairblock
 
-ENTRYPOINT ["quartz", "--mock-sgx", "--app-dir", "/opt/examples/transfers", "dev", "--unsafe-trust-latest", "--contract-manifest", "/opt/examples/transfers/contracts/Cargo.toml", "--init-msg", "{\"denom\":\"ufairy\"}"]
+ENTRYPOINT ["quartz", "--mock-sgx", "--app-dir", "/opt/examples/fairblock", "dev", "--unsafe-trust-latest", "--contract-manifest", "/opt/examples/fairblock/contracts/Cargo.toml", "--init-msg", "{\"denom\":\"ufairy\"}"]

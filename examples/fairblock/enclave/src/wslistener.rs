@@ -5,10 +5,10 @@ use quartz_common::enclave::{
 };
 use serde::Deserialize;
 use tendermint_rpc::event::Event;
-use crate::transfers_server::TransfersService;
+use crate::fairblock_server::FairblockService;
 
 #[async_trait::async_trait]
-impl<A: Attestor + Clone> WebSocketHandler for TransfersService<A> {
+impl<A: Attestor + Clone> WebSocketHandler for FairblockService<A> {
     async fn handle(&self, _event: Event, _config: WsListenerConfig) -> Result<()> {
         Ok(())
     }
@@ -18,7 +18,7 @@ impl<A: Attestor + Clone> WebSocketHandler for TransfersService<A> {
 pub trait WsListener: Send + Sync + 'static {}
 
 #[async_trait::async_trait]
-impl<A> WsListener for TransfersService<A>
+impl<A> WsListener for FairblockService<A>
 where
     A: Attestor,
     A::RawAttestation: for<'de> Deserialize<'de> + Send,

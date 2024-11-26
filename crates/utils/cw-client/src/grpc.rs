@@ -209,7 +209,7 @@ mod tests {
     use std::error::Error;
 
     use serde_json::json;
-    use transfers_contract::msg::{execute::Request, QueryMsg::GetRequests};
+    use fairblock_contract::msg::{execute::Request, QueryMsg::GetRequests};
 
     use crate::{grpc::GrpcClient, CwClient};
 

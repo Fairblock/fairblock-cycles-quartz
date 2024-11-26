@@ -6,7 +6,7 @@ After the registration, the PKs will be fetched from the contract. Each validato
 
 Once there is a need for a decryption key, the event will be monitored by the enclave code and verified through the client proofs. Since we are verifying the chain state, we will use the Tendermint abci_query for verification. The keyshare will be extracted inside the enclave, then it will be signed using the SK (corresponding to the PK stored inside the CosmWasm contract) and sent on-chain. The signature can be verified on-chain using the registered PK to ensure that the request comes from inside the TEE, and then the extracted key can be used for aggregation.
 
-For the base of our implementation, we are using this provided Transfers example.
+For the base of our implementation, we are using this provided Fairblock example.
 
 Below is a diagram of the steps:
 ![Fairblock-Cycles-Quartz](./cycles.png)

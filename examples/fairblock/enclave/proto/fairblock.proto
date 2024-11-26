@@ -1,4 +1,4 @@
 syntax = "proto3";
 
-package transfers;
+package fairblock;
 

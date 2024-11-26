@@ -234,7 +234,7 @@ pub mod settlement_server {
         }
     }
     /// Generated gRPC service name
-    pub const SERVICE_NAME: &str = "transfers.Settlement";
+    pub const SERVICE_NAME: &str = "fairblock.Settlement";
     impl<T> tonic::server::NamedService for SettlementServer<T> {
         const NAME: &'static str = SERVICE_NAME;
     }

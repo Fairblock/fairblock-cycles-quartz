@@ -8,14 +8,14 @@ on:
       - .github/workflows/cosmwasm-basic.yml
       - crates/**
       - examples/**
-      - "!examples/transfers/frontend/**"
+      - "!examples/fairblock/frontend/**"
   push:
     branches: main
     paths:
       - .github/workflows/cosmwasm-basic.yml
       - crates/**
       - examples/**
-      - "!examples/transfers/frontend/**"
+      - "!examples/fairblock/frontend/**"
 
 env:
   CARGO_INCREMENTAL: 0
@@ -28,7 +28,7 @@ env:
 
 defaults:
   run:
-    working-directory: examples/transfers/contracts
+    working-directory: examples/fairblock/contracts
 
 jobs:
   test-wasm:

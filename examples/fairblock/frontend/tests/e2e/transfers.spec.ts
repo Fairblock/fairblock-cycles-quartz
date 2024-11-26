@@ -14,7 +14,7 @@ test.beforeEach(async ({ context, page }) => {
 
 let mainBalance: number
 
-test.describe('Transfers', () => {
+test.describe('Fairblock', () => {
   test('can deposit a sum successfully', async ({ context, page }) => {
     // Initialize the balance
     mainBalance = Number(
