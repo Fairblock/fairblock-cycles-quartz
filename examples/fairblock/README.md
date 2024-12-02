@@ -12,7 +12,7 @@ Below is a diagram of the steps:
 We used the `Transfers` example as the base for our implementation. We also modified the cli code to deploy the contract on Fairyring.
 
 ## Testing
-There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the TEE version, there is a `test-tee.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of this test script is fairly similar to the mock-TEE version.
+There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the TEE version, there is a `test-tee.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of this test script is fairly similar to the no TEE version.
 The test scripts perform the following steps: 
 - Start the Fairyring
 - Build and start the enclave
