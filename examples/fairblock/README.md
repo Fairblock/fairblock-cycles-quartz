@@ -1,42 +1,61 @@
 # Fairblock-Cycles-Quartz
 
-Fairblock-Cycles-Quartz leverages the Cycles-Quartz libraries to implement a framework for Fairyring validators to run the FairyringClient functionality inside a TEE and get attested on-chain.
+## Why Fairblock-Cycles-Quartz?
 
-A CosmWasm contract is used for registration of the TEEs on Fairyring. The registration process involves performing a handshake between the contract and an enclave. After a successful handshake, the contract stores the public key of the enclave in a list representing the public keys of the registered TEEs. This list can later be queried for verification of the messages coming from inside the enclaves.
+Fairblock-Cycles-Quartz is designed to address the need for secure and reliable validator operations in Fairyring. Validators play an important role in maintaining the integrity of our framework, but the potential for collusion among them can compromise the process. This framework leverages Cycles-Quartz libraries to implement our validator functionality within a TEE, ensuring that sensitive data is stored securely.
 
-Once the validators are registered, their PKs are retrieved from the contract. Each validator's share is encrypted using their registered PK, and the encrypted shares are sent on-chain. The TEEs fetch these encrypted shares and perform decryption within the enclave using the corresponding secret key, ensuring that the validators themselves remain unaware of their shares.
+The risks of validator collusion are thoroughly explored in our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) article, which highlights how collusion can lead to unfair outcomes in cryptographic protocols. To prevent this, Fairblock-Cycles-Quartz ensures that validators remain unaware of their shares and hence, cannot misuse them. By running critical processes inside a TEE, the framework guarantees that storing shares and key extraction is isolated from validators, which reduces the risk of collusion. This approach not only secures sensitive data but also provides on-chain attestation to verify that the messages sent by validators actually originate from inside valid TEEs.
 
-The enclave actively monitors the chain for decryption key requests. Once a decryption key is requested, the enclave code first validates it against the chain state using the Tendermint's abci_query mechanism. Upon validation, the required key share is securely extracted within the enclave, signed using the enclave's SK (corresponding to the PK stored on-chain), and then submitted back to the Fairyring. This signature is verified on chain using the stored PKs in the contract to ensure that the message originates from within the TEE. Following this verification, the extracted key is used for key aggregation.
-Below is a diagram of the steps:
+---
+
+## Overview
+
+The registration process for Fairblock-Cycles-Quartz relies on a CosmWasm contract to manage TEEs within the Fairyring network. This process begins with a handshake between the contract and an enclave using the Quartz client. Upon successful completion, the contract stores the public key of the enclave in a list representing the registered TEEs. This list can be used to verify the messages originating from inside the enclaves.
+
+Once the validators are registered, their public keys are retrieved from the contract. Each validator’s share is encrypted using their registered public key, and the encrypted shares are sent on-chain. The enclaves fetch these encrypted shares and perform decryption within the TEE using the corresponding secret key. This ensures that the validators themselves remain unaware of their shares, preventing them from colluding with each other.
+
+The enclaves also monitor the blockchain for decryption key requests. Upon receiving a request, the enclave validates it against the chain state using Tendermint’s `abci_query` mechanism. If the validation is successful, the key share is securely extracted and signed using the enclave’s secret key, which corresponds to the public key stored on-chain. This signed share is then submitted back to Fairyring. This signature is verified on chain using the list of the registered PKs from the contract to confirm that the message originates from a valid TEE. After successful verification, the extracted key can be used for key aggregation.
+
+The diagram below illustrates the overall process:
 ![Fairblock-Cycles-Quartz](./cycles.png)
-We used the `Transfers` example as the base for our implementation. We also modified the cli code to deploy the contract on Fairyring.
+
+---
+## Implementation Details
+
+This implementation builds upon the `Transfers` example from Cycles-Quartz, with modifications to the Quartz cli to enable contract deployment and interaction with Fairyring.
+
+The CosmWasm contract is modified to store a list of PKs from validated enclaves through the handshake process. On the enclave side, additional functionalities were implemented to support validator operations for Fairyring. Specifically, the enclave starts by waiting for the handshake to complete and for the SK to be set. Once the SK is established, it fetches and decrypts its share using that SK. Following this, the enclave begins listening for decryption key requests from Fairyring. After verifying the requests, it extracts the key share and submits it on-chain.
+
+---
 
 ## Testing
-There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the TEE version, there is a `test-tee.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of this test script is fairly similar to the no TEE version.
-The test scripts perform the following steps: 
-- Start the Fairyring
-- Build and start the enclave
-- Deploy the contract and performt the handshake
-- Encrypt the share with the PK of the enclave
-- Send the encrypted share on Fairyring
-- Send a request for a decryption key on chain so that the enclave submit the corresponding key
 
-The logs for the chain and enclave are stored in "fairyring/fairyring_chain.log" and "examples/fairblock/enclave_output.log" respectively.
+Testing for this framework involves two main scripts. The first, `test.sh`, is used for end-to-end testing without TEE integration. The second script, `test-tee.sh`, includes additional steps to deploy and configure the TCB and DCAP contracts on Fairyring, as well as performing the end-to-end test with the TEE enabled. 
 
-## Performance
+The testing process involves several steps:
+- Starting the Fairyring network.
+- Building and starting the enclave.
+- Deploying the CosmWasm contract and performing the handshake with the enclave.
+- Encrypting the share using the enclave’s public key.
+- Sending the encrypted share on-chain.
+- Submitting a decryption key request to trigger the enclave’s process.
+
+Note that for the end-to-end tests, the Fairyring source code (`abci-query` branch) is required to be cloned in the same directory where Fairblock-Cycles-Quartz is located.
+Logs for the chain and enclave operations are stored in `fairyring/fairyring_chain.log` and `examples/fairblock/enclave_output.log`, respectively.
+
+---
+
+## Performance Analysis
+
+The table below compares the average runtime for different operations executed in non-TEE and TEE environments. The overhead percentage reflects the additional runtime cost introduced by TEE integration. For each case, we ran the code `100` times and averaged the runtime. All tests were conducted on a Microsoft Azure server with the following specifications: Standard DC4s v3 instance, with 4 vCPUs and 32 GiB of RAM.
+
+
 | Case                        | No TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
-|-----------------------------|-----------------------|-------------------|------------------------|
-| Key Extraction              | 1.5015                | 1.5285            | +1.80%                 |
-| Signing & Sending on Chain  | 81.8016               | 89.7137           | +9.68%                 |
-| Get Share                   | 40.9942               | 44.2842           | +8.02%                 |
+|-----------------------------|----------------------|-------------------|-------------------------|
+| Key Extraction              | 1.5015              | 1.5285           | +1.80%                 |
+| Signing & Sending on Chain  | 81.8016             | 89.7137          | +9.68%                 |
+| Get Share                   | 40.9942             | 44.2842          | +8.02%                 |
 
-### Analysis
+The results indicate a small overhead of approximately 1.80% for key extraction, suggesting that the added security of the TEE has minimal impact on performance for this operation. However, signing and sending transactions on-chain shows a higher overhead of 9.68%, reflecting the additional computational complexity introduced by TEE security measures. The process of fetching and decrypting shares incurs an 8.02% overhead.
 
-The table above compares the average runtimes for different operations executed in no TEE and TEE environments. The overhead percentage is calculated to show the additional cost caused by TEE in terms of runtime.
-
-From the results:
-- **Key Extraction**: TEE introduces an overhead of approximately **1.80%**, showing a small increase in runtime for extracting the keyshare for a requested identity.
-- **Signing & Sending on Chain**: The overhead here is **9.68%** for the process of signing the extracted key and sending the tx on chain.
-- **Get Share**: The TEE version has an **8.02%** overhead compared to no TEE in the process of fetching the share and decrypting it. 
-
-These results demonstrate that using TEE causes a maximum of **9.68%** runtime cost, particularly in complex operations like signing, decrypting shares, and communicating with the chain.
+These findings demonstrate that while TEE integration does introduce some runtime cost, the overhead is limited to a maximum of 9.68%, ensuring that the framework remains efficient and secure for critical operations like signing, decrypting shares, and interacting with the blockchain.
