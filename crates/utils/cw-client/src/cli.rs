@@ -171,6 +171,7 @@ impl CwClient for CliClient {
             .args(["--gas-prices", "0.025ufairy"])
             .args(["--from", sender])
             .args(["--output", "json"])
+            .args(["--keyring-backend","test"])
             .arg("-y");
 
         let output = command.output()?;
@@ -199,8 +200,9 @@ impl CwClient for CliClient {
             .args(["--gas", "auto"])
             .args(["--gas-adjustment", "1.3"])
             .args(["-o", "json"])
+            .args(["--keyring-backend","test"])
             .arg("-y");
-
+        
         let output = command.output()?;
 
         if !output.status.success() {
@@ -220,6 +222,8 @@ impl CwClient for CliClient {
         label: &str,
     ) -> Result<String, Self::Error> {
         let mut command = self.new_command()?;
+       // let config_string = r#"{"quartz":{"msg":{"config":{"mr_enclave":"0000000000000000000000000000000000000000000000000000000000000000","epoch_duration":{"secs":43200,"nanos":0},"light_client_opts":{"chain_id":"fairyring","trusted_height":304,"trusted_hash":"94ec4001dc844d84c1af7cbbcb4d00122337d79da2e333a0400e6ed5a206b221","trust_threshold":[2,3],"trusting_period":1209600,"max_clock_drift":5,"max_block_lag":5},"tcbinfo_contract":null,"dcap_verifier_contract":null}},"attestation":"85c014cb96e068ab119deadee621972b07991628ae401aeb780f0a2d74dff7da0000000000000000000000000000000000000000000000000000000000000000"}}"#;
+
         let command = command
             .args(["--node", self.url.as_str()])
             .args(["tx", "wasm", "instantiate"])
@@ -232,8 +236,9 @@ impl CwClient for CliClient {
             .args(["--gas", "auto"])
             .args(["--gas-adjustment", "1.3"])
             .args(["-o", "json"])
+            .args(["--keyring-backend","test"])
             .arg("-y");
-
+       
         let output = command.output()?;
 
         if !output.status.success() {

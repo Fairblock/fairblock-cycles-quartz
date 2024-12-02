@@ -12,8 +12,22 @@ Below is a diagram of the steps:
 We used the `Transfers` example as the base for our implementation. We also modified the cli code to deploy the contract on Fairyring.
 
 ## Testing
-There is a test script (`test.sh`) for performing an end-to-end testing of the process. 
-[to be continued...]
+There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the SGX version, there is a `test-sgx.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of the test script is fairly similar to the mock-SGX version.
 
 ## Benchmarks
-[to be added...]
+| Case                        | Mock-SGX Average (ms) | SGX Average (ms) | Overhead (%)            |
+|-----------------------------|-----------------------|-------------------|------------------------|
+| Key Extraction              | 1.5015                | 1.5285            | +1.80%                 |
+| Signing & Sending on Chain  | 81.8016               | 89.7137           | +9.68%                 |
+| Get Share                   | 40.9942               | 44.2842           | +8.02%                 |
+
+### Analysis
+
+The table above compares the average runtimes for different operations executed in mock-SGX and SGX environments. The overhead percentage is calculated to show the additional cost caused by SGX in terms of runtime.
+
+From the results:
+- **Key Extraction**: SGX introduces an overhead of approximately **1.80%**, showing a small increase in runtime for extracting the keyshare for a requested identity.
+- **Signing & Sending on Chain**: The overhead here is **9.68%** for the process of signing the extracted key and sending the tx on chain.
+- **Get Share**: The SGX version has an **8.02%** overhead compared to mock-SGX in the process of fetching the share and decrypting it. 
+
+These results demonstrate that using SGX causes a maximum of 9.68% runtime cost, particularly in complex operations like signing, decrypting shares and communicating with the chain.
