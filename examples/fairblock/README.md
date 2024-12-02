@@ -24,7 +24,7 @@ The test scripts perform the following steps:
 The logs for the chain and enclave are stored in "fairyring/fairyring_chain.log" and "examples/fairblock/enclave_output.log" respectively.
 
 ## Performance
-| Case                        | Mock-TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
+| Case                        | No TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
 |-----------------------------|-----------------------|-------------------|------------------------|
 | Key Extraction              | 1.5015                | 1.5285            | +1.80%                 |
 | Signing & Sending on Chain  | 81.8016               | 89.7137           | +9.68%                 |
@@ -32,11 +32,11 @@ The logs for the chain and enclave are stored in "fairyring/fairyring_chain.log"
 
 ### Analysis
 
-The table above compares the average runtimes for different operations executed in mock-TEE and TEE environments. The overhead percentage is calculated to show the additional cost caused by TEE in terms of runtime.
+The table above compares the average runtimes for different operations executed in no TEE and TEE environments. The overhead percentage is calculated to show the additional cost caused by TEE in terms of runtime.
 
 From the results:
 - **Key Extraction**: TEE introduces an overhead of approximately **1.80%**, showing a small increase in runtime for extracting the keyshare for a requested identity.
 - **Signing & Sending on Chain**: The overhead here is **9.68%** for the process of signing the extracted key and sending the tx on chain.
-- **Get Share**: The TEE version has an **8.02%** overhead compared to mock-TEE in the process of fetching the share and decrypting it. 
+- **Get Share**: The TEE version has an **8.02%** overhead compared to no TEE in the process of fetching the share and decrypting it. 
 
 These results demonstrate that using TEE causes a maximum of **9.68%** runtime cost, particularly in complex operations like signing, decrypting shares, and communicating with the chain.
