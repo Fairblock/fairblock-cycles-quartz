@@ -90,22 +90,24 @@ fi
 echo "Contract Address: $contract_address"
 sleep 4
 
-# Handshake and Retrieve SK Value
-quartz handshake --contract "$contract_address"
-sleep 3
-cleaned_log=$(sed -E 's/\x1b\[[0-9;]*m//g' enclave_output.log)
-sk_value=$(echo "$cleaned_log" | grep -oP '(?<=sk:")[a-f0-9]+"')
-sk_value=$(echo "$sk_value" | tr -d '"')
+# Handshake and Retrieve PK Value
+output=$(quartz handshake --contract "$contract_address")
 
-if [[ -z "$sk_value" ]]; then
-    echo "Error: Could not extract sk from the log." >&2
-    exit 1
+# Extract the pub_key value from the output
+pub_key=$(echo "$output" | grep -oP '(?<="pub_key":")[^"]+')
+
+# Print the extracted pub_key
+if [[ -n $pub_key ]]; then
+    echo "Extracted pub_key: $pub_key"
+else
+    echo "pub_key not found in the command output."
 fi
-echo "SK Value: $sk_value"
 
-# Test Key Sharing
+
+# Test execution
 cd ../../../fairyring/test
-encrypted_share=$(cargo run --release "$sk_value")
+encrypted_share=$(cargo run --release "$pub_key")
+
 fairyringd tx keyshare create-latest-pubkey a83ec58f7772aee8a11029da99b4af74f19ef9f9b95559dfa32293115d5089c565d193046ef299e628703844f00f0c5b b584990d7022c6989633b0d443ffc5fc1128b4107cac25904d526d12536153c34349e5f3657870a498ccf6f78a858085 1 "[{\"data\":\"$encrypted_share\",\"validator\":\"fairy1vghpa0tuzfza97cwyc085zxuhsyvy3jtgry7vv\"}]" --from fairy1vghpa0tuzfza97cwyc085zxuhsyvy3jtgry7vv --chain-id fairyring --fees 5000ufairy --node "$NODE_URL" --keyring-backend test -y
 sleep 5
 

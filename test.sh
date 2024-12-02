@@ -44,25 +44,23 @@ fi
 
 echo "Contract Address: $contract_address"
 
-# Handshake using the extracted contract address
-quartz --mock-sgx handshake --contract "$contract_address"
+# Handshake using the extracted PK
+output=$(quartz --mock-sgx handshake --contract "$contract_address")
 
-# Extract SK value from log
-cleaned_log=$(sed -E 's/\x1b\[[0-9;]*m//g' enclave_output.log)
-sk_value=$(echo "$cleaned_log" | grep -oP '(?<=sk:")[a-f0-9]+"')
-sk_value=$(echo "$sk_value" | tr -d '"')
+# Extract the pub_key value from the output
+pub_key=$(echo "$output" | grep -oP '(?<="pub_key":")[^"]+')
 
-# Validate SK extraction
-if [[ -z "$sk_value" ]]; then
-    echo "Error: Could not extract sk from the log." >&2
-    exit 1
+# Print the extracted pub_key
+if [[ -n $pub_key ]]; then
+    echo "Extracted pub_key: $pub_key"
+else
+    echo "pub_key not found in the command output."
 fi
 
-echo "SK Value: $sk_value"
 
 # Test execution
 cd ../../../fairyring/test
-encrypted_share=$(cargo run --release "$sk_value")
+encrypted_share=$(cargo run --release "$pub_key")
 
 fairyringd tx keyshare create-latest-pubkey \
     a83ec58f7772aee8a11029da99b4af74f19ef9f9b95559dfa32293115d5089c565d193046ef299e628703844f00f0c5b \

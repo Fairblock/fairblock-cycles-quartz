@@ -104,9 +104,9 @@ async fn verify_event_proof(
 }
 
 pub async fn listen_fairyring(sk: SigningKey) -> Result<()> {
-    // For testing purposes:
+   
     let sk_hex = encode(sk.to_bytes());
-    println!("sk:{:?}",sk_hex);
+
   
     let mut share_val: Vec<u8> = vec![];
     let mut index_val = 0;

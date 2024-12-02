@@ -13,6 +13,15 @@ We used the `Transfers` example as the base for our implementation. We also modi
 
 ## Testing
 There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the TEE version, there is a `test-tee.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of this test script is fairly similar to the mock-TEE version.
+The test scripts perform the following steps: 
+- Start the Fairyring
+- Build and start the enclave
+- Deploy the contract and performt the handshake
+- Encrypt the share with the PK of the enclave
+- Send the encrypted share on Fairyring
+- Send a request for a decryption key on chain so that the enclave submit the corresponding key
+
+The logs for the chain and enclave are stored in "fairyring/fairyring_chain.log" and "examples/fairblock/enclave_output.log" respectively.
 
 ## Performance
 | Case                        | Mock-TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
