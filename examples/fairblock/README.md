@@ -14,7 +14,7 @@ We used the `Transfers` example as the base for our implementation. We also modi
 ## Testing
 There is a test script (`test.sh`) for performing an end-to-end testing of the process. For the SGX version, there is a `test-sgx.sh` which deploys the TCB and DCAP contracts and sets them up on Fairyring. The rest of this test script is fairly similar to the mock-SGX version.
 
-## Benchmarks
+## Performance
 | Case                        | Mock-SGX Average (ms) | SGX Average (ms) | Overhead (%)            |
 |-----------------------------|-----------------------|-------------------|------------------------|
 | Key Extraction              | 1.5015                | 1.5285            | +1.80%                 |
