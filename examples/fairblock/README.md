@@ -47,7 +47,7 @@ Logs for the chain and enclave operations are stored in `fairyring/fairyring_cha
 
 ## Performance Analysis
 
-The table below compares the average runtime for different operations executed in non-TEE and TEE environments. The overhead percentage reflects the additional runtime cost introduced by TEE integration. For each case, we ran the code `100` times and averaged the runtime. All tests were conducted on a Microsoft Azure server with the following specifications: **Standard DC4s v3 instance**, with **4 vCPUs** and **32 GiB of RAM**.
+The table below compares the average runtime for different operations executed in no TEE and TEE environments. The overhead percentage reflects the additional runtime cost introduced by TEE integration. For each case, we ran the code `100` times and averaged the runtime. All tests were conducted on a Microsoft Azure VM with the following specifications: **Standard DC4s v3 instance**, with **4 vCPUs** and **32 GiB of RAM**.
 
 
 | Case                        | No TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
