@@ -2,15 +2,15 @@
 
 ## Why Fairblock-Cycles-Quartz?
 
-Fairblock-Cycles-Quartz is designed to address the need for secure and reliable validator operations in Fairyring. Validators play an important role in maintaining the integrity of our framework, but the potential for collusion among them can compromise the process. This framework leverages Cycles-Quartz libraries to implement our validator functionality within a TEE, ensuring that sensitive data is stored securely.
+Fairblock-Cycles-Quartz is designed to address the need for secure and reliable validator operations in Fairyring. Validators play an important role in maintaining the integrity of our framework, but the potential for collusion among them can compromise the system. This framework leverages Cycles-Quartz libraries to implement our validator functionality within a TEE, ensuring that sensitive data is stored securely.
 
-The risks of validator collusion are thoroughly explored in our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) article, which highlights how collusion can lead to unwanted outcomes in cryptographic protocols. Fairblock-Cycles-Quartz ensures that validators remain unaware of their shares and hence, cannot misuse them. By running critical processes inside a TEE, the framework guarantees that storing shares and key extraction is isolated from validators, which reduces the risk of collusion. This approach not only secures sensitive data but also provides on-chain attestation to verify that the messages sent by validators actually originate from inside valid TEEs.
+The risks of validator collusion are thoroughly explored in our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) article, which highlights how collusion can lead to unwanted outcomes such as decryption key leakage before the designated decryption time. Fairblock-Cycles-Quartz ensures that validators remain unaware of their shares and hence, cannot misuse them. By running critical processes inside a TEE, the framework guarantees that storing shares and key extraction is isolated from validators, which reduces the risk of collusion. This approach not only secures sensitive data but also provides on-chain attestation to verify that the messages sent by validators actually originate from inside valid TEEs.
 
 
 
 ## Overview
 
-The registration process for Fairblock-Cycles-Quartz relies on a CosmWasm contract to manage TEEs within the Fairyring network. This process begins with a handshake between the contract and an enclave using the Quartz client. Upon successful completion, the contract stores the public key of the enclave in a list representing the registered TEEs. This list can be used to verify the messages originating from inside the enclaves.
+The validator registration process for Fairblock-Cycles-Quartz relies on a CosmWasm contract to manage TEEs within the Fairyring network. This process begins with a handshake between the contract and an enclave using the Quartz client. Upon successful completion, the contract stores the public key of the enclave in a list representing the registered TEEs. This list can be used to verify the messages originating from inside the enclaves.
 
 Once the validators are registered, their public keys are retrieved from the contract. Each validator’s share is encrypted using their registered public key, and the encrypted shares are sent on-chain. The enclaves fetch these encrypted shares and perform decryption within the TEE using the corresponding secret key. This ensures that the validators themselves remain unaware of their shares, preventing them from colluding with each other.
 
