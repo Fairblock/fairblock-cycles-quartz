@@ -2,46 +2,47 @@
 
 ## 1. Why Fairblock-Cycles-Quartz?
 
-Fairblock-Cycles-Quartz is designed to address the need for secure and reliable validator operations in Fairyring. Validators play an important role in maintaining the integrity of our framework, but the potential for collusion among them can compromise the system. This framework leverages Cycles-Quartz libraries to implement our validator functionality within a TEE, ensuring that sensitive data is stored securely.
+Fairblock-Cycles-Quartz is built to enhance the security and reliability of validator operations within the Fairyring network. Validators are essential to the blockchain's integrity, but there is always a risk of collusion among them that can compromize the system. To address this, Fairblock-Cycles-Quartz uses the Cycles-Quartz library, allowing validator operations to run within a Trusted Execution Environment (TEE), which helps keep sensitive operations secure.
 
-The risks of validator collusion are thoroughly explored in our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) article, which highlights how collusion can lead to unwanted outcomes such as decryption key leakage before the designated decryption time. Fairblock-Cycles-Quartz ensures that validators remain unaware of their shares and hence, cannot misuse them. By running critical processes inside a TEE, the framework guarantees that storing shares and key extraction is isolated from validators. This approach not only secures sensitive data but also provides on-chain attestation to verify that the messages sent by validators actually originate from inside valid TEEs.
+Our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) explains the risks of validator collusion and the impact on blockchain integrity. One major risk is validators leaking decryption keys prematurely. Fairblock-Cycles-Quartz tackles this by ensuring validators are unaware of their own shares. Running key processes inside a TEE ensures that sensitive data remains isolated and verifiable through on-chain attestation.
 
+## 2. System Architecture
 
+### 2.1 Validator Registration
+Validator registration in Fairblock-Cycles-Quartz is managed through a CosmWasm smart contract that interacts with TEEs across the Fairyring network. Registration starts with a handshake between the CosmWasm contract and an enclave, using the Quartz client. Once this handshake is complete, the enclave's public key is saved in a list maintained by the contract, which holds the public keys of authorized TEEs. This list is later used to verify messages coming from registered enclaves.
 
-## 2. Overview
+### 2.2 Secure Validator Operations
+After registration, the validator public keys are retrieved from the CosmWasm contract. Each validator receives a share, which is encrypted with their registered public key and sent on-chain. Enclaves fetch these encrypted shares and decrypt them within the secure TEE environment, using their corresponding secret keys. This setup ensures that validators do not access their own shares directly, thereby reducing the risk of collusion.
 
-The validator registration process for Fairblock-Cycles-Quartz relies on a CosmWasm contract to manage TEEs within the Fairyring network. This process begins with a handshake between the contract and an enclave using the Quartz client. Upon successful completion, the contract stores the public key of the enclave in a list representing the registered TEEs. This list can be used to verify the messages originating from inside the enclaves.
+The enclaves also monitor the blockchain for requests to provide decryption keys. When such a request comes in, the enclave uses Tendermint's `abci_query` to verify the request against the blockchain state. Once verified, the enclave extracts the keyshare and signs it using the secret key held in the TEE. The signed share is submitted back to Fairyring, where it is validated against the stored public keys. This ensures the message came from a valid, authenticated TEE, allowing the extracted key share to be used for further aggregation.
 
-Once the validators are registered, their public keys are retrieved from the contract. Each validator’s share is encrypted using their registered public key, and the encrypted shares are sent on-chain. The enclaves fetch these encrypted shares and perform decryption within the TEE using the corresponding secret key. This ensures that the validators themselves remain unaware of their shares, preventing them from colluding with each other.
-
-The enclaves also monitor the blockchain for decryption key requests. Upon receiving a request, the enclave validates it against the chain state using Tendermint’s `abci_query` mechanism. If the validation is successful, the key share is securely extracted and signed using the enclave’s secret key, which corresponds to the public key stored on-chain. This signed share is then submitted back to Fairyring. This signature is verified on chain using the list of the registered PKs from the contract to confirm that the message originates from a valid TEE. After successful verification, the extracted key can be used for key aggregation.
-
-The diagram below illustrates the overall process:
+The diagram below shows the entire process:
 ![Fairblock-Cycles-Quartz](./cycles.png)
 
 
 ## 3. Implementation Details
 
-This implementation builds upon the `Transfers` example from Cycles-Quartz, with modifications to the Quartz cli to enable contract deployment and interaction with Fairyring.
+This implementation builds upon the `Transfers` example from Cycles-Quartz, with modifications to the Quartz client to enable contract deployment and interaction with Fairyring.
 
-The CosmWasm contract is modified to store a list of PKs from validated enclaves through the handshake process. On the enclave side, additional functionalities were implemented to support validator operations for Fairyring. Specifically, the enclave starts by waiting for the handshake to complete and for the SK to be set. Once the SK is established, it fetches and decrypts its share using that SK. Following this, the enclave begins listening for decryption key requests from Fairyring. After verifying the requests, it extracts the key share and submits it on-chain.
-
+### 3.1 Contract and Enclave Modifications
+The CosmWasm contract has been updated to keep a list of public keys from enclaves that successfully complete the handshake process. On the enclave side, extra functionalities have been added to handle validator-specific tasks for Fairyring. The enclave first waits for the handshake to complete and the secret key (SK) to be set. Once ready, the enclave retrieves and decrypts its share. Afterward, it listens to the Fairyring network for decryption key requests, verifies these requests, extracts the required keyshare, and submits it back to the chain.
 
 
 ## 4. Testing
 
-Testing for this framework involves two main scripts. The first, `test.sh`, is used for end-to-end testing without TEE integration. The second script, `test-tee.sh`, includes additional steps to deploy and configure the TCB and DCAP contracts on Fairyring, as well as performing the end-to-end test with the TEE enabled. 
+Testing for Fairblock-Cycles-Quartz involves two main scripts: `test.sh` and `test-tee.sh`. The `test.sh` script is for end-to-end tests without TEE integration, while `test-tee.sh` also includes extra steps for deploying and managing TEE components, such as the TCB and DCAP contracts.
 
-The testing process involves several steps:
-- Starting the Fairyring network.
-- Building and starting the enclave.
-- Deploying the CosmWasm contract and performing the handshake with the enclave.
-- Encrypting the share using the enclave’s public key.
-- Sending the encrypted share on-chain.
-- Submitting a decryption key request to trigger the enclave’s process.
+### 4.1 Test Procedures
+The testing involves several key steps:
 
-Note that for the end-to-end tests, the Fairyring source code (`abci-query` branch) is required to be cloned in the same directory where Fairblock-Cycles-Quartz is located.
-Logs for the chain and enclave operations are stored in `fairyring/fairyring_chain.log` and `examples/fairblock/enclave_output.log`, respectively.
+- **Network Initialization**: Start the Fairyring network.
+- **Enclave Setup**: Build and initialize the enclave.
+- **Contract Deployment**: Deploy the CosmWasm contract and complete the handshake with the enclave to validate the TEE.
+- **Share Encryption**: Encrypt the validator's share using the enclave's public key and send it on-chain.
+- **Decryption Key Request**: Submit decryption key requests to trigger the enclave's process.
+
+For end-to-end tests, the Fairyring source code (`abci-query` branch) must be cloned in the same directory as Fairblock-Cycles-Quartz.
+Logs for both the blockchain and enclave are kept for analysis and debugging purposes, stored in `fairyring/fairyring_chain.log` and `examples/fairblock/enclave_output.log`. These logs provide insight into the behavior of the enclave and chain interactions during testing.
 
 
 
