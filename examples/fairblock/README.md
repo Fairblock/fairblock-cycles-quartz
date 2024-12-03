@@ -56,6 +56,6 @@ The table below compares the average runtime for different operations executed i
 | Signing & Sending on Chain  | 81.8016             | 89.7137          | +9.68%                 |
 | Get Share                   | 40.9942             | 44.2842          | +8.02%                 |
 
-The results indicate a small overhead of approximately **1.80%** for key extraction, suggesting that the added security of the TEE has minimal impact on performance for this operation. Signing and sending transactions on-chain shows a higher overhead of **9.68%**. And the process of fetching and decrypting shares incurs an **8.02%** overhead.
+The results indicate a small overhead of approximately **1.80%** for key extraction, suggesting that the added security of the TEE has minimal impact on performance for this operation. Signing and sending transactions on-chain shows a higher overhead of **9.68%** and the process of fetching and decrypting shares incurs an **8.02%** overhead.
 
 These results demonstrate that while TEE integration does introduce some runtime cost, the overhead is limited to a maximum of **9.68%**, ensuring that the framework remains efficient for critical operations like extracting keys, signing, decrypting shares, and interacting with the blockchain.
