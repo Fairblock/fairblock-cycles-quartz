@@ -45,17 +45,22 @@ Logs for the chain and enclave operations are stored in `fairyring/fairyring_cha
 
 
 
-## Performance Analysis
+## 4. Performance Analysis
 
-The table below compares the average runtime for different operations executed in no TEE and TEE environments. The overhead percentage reflects the additional runtime cost introduced by TEE integration. For each case, we ran the code `100` times and averaged the runtime. All tests were conducted on a Microsoft Azure VM with the following specifications: **Standard DC4s v3 instance**, with **4 vCPUs** and **32 GiB of RAM**.
+The performance of cryptographic operations was analyzed under environments with and without TEE integration. Specifically, we evaluated the average runtime of operations related to key extraction, signing and sending transactions on-chain, and share retrieval. Each operation was executed 100 times, and the results were averaged to determine the runtime. All experiments were conducted on a Microsoft Azure virtual machine configured as a **Standard DC4s v3 instance**, equipped with **4 vCPUs** and **32 GiB of RAM**.
 
+### 4.1 Experimental Results
 
-| Case                        | No TEE Average (ms) | TEE Average (ms) | Overhead (%)            |
-|-----------------------------|----------------------|-------------------|-------------------------|
-| Key Extraction              | 1.5015              | 1.5285           | +1.80%                 |
-| Signing & Sending on Chain  | 81.8016             | 89.7137          | +9.68%                 |
-| Get Share                   | 40.9942             | 44.2842          | +8.02%                 |
+The following table summarizes the average runtime of each operation executed both in a standard environment (without TEE) and in a TEE-enabled environment. The overhead percentage shows the additional runtime cost due to TEE integration.
 
-The results indicate a small overhead of approximately **1.80%** for key extraction, suggesting that the added security of the TEE has minimal impact on performance for this operation. Signing and sending transactions on-chain shows a higher overhead of **9.68%** and the process of fetching and decrypting shares incurs an **8.02%** overhead.
+| Operation                  | Standard Environment Runtime Average (ms) | TEE-Enabled Runtime Average (ms) | Overhead (%) |
+|----------------------------|------------------------------------|--------------------------|--------------|
+| Key Extraction             | 1.5015                             | 1.5285                   | +1.80%       |
+| Signing & Sending Keyshare on-Chain | 81.8016                            | 89.7137                  | +9.68%       |
+| Share Retrieval            | 40.9942                            | 44.2842                  | +8.02%       |
 
-These results demonstrate that while TEE integration does introduce some runtime cost, the overhead is limited to a maximum of **9.68%**, ensuring that the framework remains efficient for critical operations like extracting keys, signing, decrypting shares, and interacting with the blockchain.
+### 4.2 Overhead Analysis
+
+The observed results indicate that integrating TEE incurs some additional runtime overhead across all operations. Specifically, **key extraction** has a minimal increase in runtime of **1.80%**, showing that the overhead caused by TEE integration for this operation is negligible. For **signing and sending transactions on-chain**, the overhead was **9.68%**, which represents the highest observed increase among the tested operations. The **share retrieval** operation also experienced an overhead of **8.02%**.
+
+These findings suggest that while using a TEE does introduce a runtime cost, this overhead is limited to a maximum of **9.68%** across the cryptographic operations. This level of overhead is acceptable given the enhanced security guarantees provided by TEE integration. Overall, the results demonstrate that TEE integration maintains an efficient framework suitable for critical operations, including key extraction, signing, and share decryption, even when interacting with blockchain networks.
