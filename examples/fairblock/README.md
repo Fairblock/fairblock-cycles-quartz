@@ -1,6 +1,6 @@
 # Fairblock-Cycles-Quartz
 
-## Why Fairblock-Cycles-Quartz?
+## 1. Why Fairblock-Cycles-Quartz?
 
 Fairblock-Cycles-Quartz is designed to address the need for secure and reliable validator operations in Fairyring. Validators play an important role in maintaining the integrity of our framework, but the potential for collusion among them can compromise the system. This framework leverages Cycles-Quartz libraries to implement our validator functionality within a TEE, ensuring that sensitive data is stored securely.
 
@@ -8,7 +8,7 @@ The risks of validator collusion are thoroughly explored in our [Multimodal Cryp
 
 
 
-## Overview
+## 2. Overview
 
 The validator registration process for Fairblock-Cycles-Quartz relies on a CosmWasm contract to manage TEEs within the Fairyring network. This process begins with a handshake between the contract and an enclave using the Quartz client. Upon successful completion, the contract stores the public key of the enclave in a list representing the registered TEEs. This list can be used to verify the messages originating from inside the enclaves.
 
@@ -20,7 +20,7 @@ The diagram below illustrates the overall process:
 ![Fairblock-Cycles-Quartz](./cycles.png)
 
 
-## Implementation Details
+## 3. Implementation Details
 
 This implementation builds upon the `Transfers` example from Cycles-Quartz, with modifications to the Quartz cli to enable contract deployment and interaction with Fairyring.
 
@@ -28,7 +28,7 @@ The CosmWasm contract is modified to store a list of PKs from validated enclaves
 
 
 
-## Testing
+## 4. Testing
 
 Testing for this framework involves two main scripts. The first, `test.sh`, is used for end-to-end testing without TEE integration. The second script, `test-tee.sh`, includes additional steps to deploy and configure the TCB and DCAP contracts on Fairyring, as well as performing the end-to-end test with the TEE enabled. 
 
@@ -45,11 +45,11 @@ Logs for the chain and enclave operations are stored in `fairyring/fairyring_cha
 
 
 
-## 4. Performance Analysis
+## 5. Performance Analysis
 
 The performance of cryptographic operations was analyzed under environments with and without TEE integration. Specifically, we evaluated the average runtime of operations related to key extraction, signing and sending transactions on-chain, and share retrieval. Each operation was executed 100 times, and the results were averaged to determine the runtime. All experiments were conducted on a Microsoft Azure virtual machine configured as a **Standard DC4s v3 instance**, equipped with **4 vCPUs** and **32 GiB of RAM**.
 
-### 4.1 Experimental Results
+### 5.1 Experimental Results
 
 The following table summarizes the average runtime of each operation executed both in a standard environment (without TEE) and in a TEE-enabled environment. The overhead percentage shows the additional runtime cost due to TEE integration.
 
@@ -59,7 +59,7 @@ The following table summarizes the average runtime of each operation executed bo
 | Signing & Sending Keyshare on-Chain | 81.8016                            | 89.7137                  | +9.68%       |
 | Share Retrieval            | 40.9942                            | 44.2842                  | +8.02%       |
 
-### 4.2 Overhead Analysis
+### 5.2 Overhead Analysis
 
 The observed results indicate that integrating TEE incurs some additional runtime overhead across all operations. Specifically, **key extraction** has a minimal increase in runtime of **1.80%**, showing that the overhead caused by TEE integration for this operation is negligible. For **signing and sending transactions on-chain**, the overhead was **9.68%**, which represents the highest observed increase among the tested operations. The **share retrieval** operation also experienced an overhead of **8.02%**.
 
