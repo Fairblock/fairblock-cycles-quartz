@@ -14,7 +14,7 @@ Validator registration in Fairblock-Cycles-Quartz is managed through a CosmWasm 
 ### 2.2 Secure Validator Operations
 After registration, the validator public keys are retrieved from the CosmWasm contract. Each validator receives a share, which is encrypted with their registered public key and sent on-chain. Enclaves fetch these encrypted shares and decrypt them within the secure TEE environment, using their corresponding secret keys. This setup ensures that validators do not access their own shares directly, thereby reducing the risk of collusion.
 
-The enclaves also monitor the blockchain for requests to provide decryption keys. When such a request comes in, the enclave uses Tendermint's `abci_query` to verify the request against the blockchain state. Once verified, the enclave extracts the keyshare and signs it using the secret key held in the TEE. The signed share is submitted back to Fairyring, where it is validated against the stored public keys. This ensures the message came from a valid, authenticated TEE, allowing the extracted key share to be used for further aggregation.
+The enclaves also monitor the blockchain for requests to provide decryption keys. When such a request comes in, the enclave uses Tendermint's `abci_query` to verify the request against the blockchain state. Once verified, the enclave extracts the keyshare and signs it using the secret key held in the TEE. The signed share is submitted back to Fairyring, where it is validated against the stored public keys. This ensures the message came from a valid, authenticated TEE, allowing the extracted keyshare to be used for further aggregation.
 
 The diagram below shows the entire process:
 ![Fairblock-Cycles-Quartz](./cycles.png)
