@@ -56,12 +56,12 @@ The following table summarizes the average runtime of each operation executed bo
 
 | Operation                  | Standard Environment Runtime Average (ms) | TEE-Enabled Runtime Average (ms) | Overhead (%) |
 |----------------------------|------------------------------------|--------------------------|--------------|
-| Key Extraction             | 1.5015                             | 1.5285                   | +1.80%       |
+| Key Extraction             | 1.626                            | 1.714                   | +5.41%       |
 | Signing & Sending Keyshare on-Chain | 81.8016                            | 89.7137                  | +9.68%       |
 | Share Retrieval            | 40.9942                            | 44.2842                  | +8.02%       |
 
 ### 5.2 Overhead Analysis
 
-The observed results indicate that integrating TEE incurs some additional runtime overhead across all operations. Specifically, **key extraction** has a minimal increase in runtime of **1.80%**, showing that the overhead caused by TEE integration for this operation is negligible. For **signing and sending transactions on-chain**, the overhead was **9.68%**, which represents the highest observed increase among the tested operations. The **share retrieval** operation also experienced an overhead of **8.02%**.
+The observed results indicate that integrating TEE incurs some additional runtime overhead across all operations. Specifically, **key extraction** has a minimum increase in runtime of **5.41%**. For **signing and sending transactions on-chain**, the overhead was **9.68%**, which represents the highest observed increase among the tested operations. The **share retrieval** operation also experienced an overhead of **8.02%**.
 
 These findings suggest that while using a TEE does introduce a runtime cost, this overhead is limited to a maximum of **9.68%** across the cryptographic operations. This level of overhead is acceptable given the enhanced security guarantees provided by TEE integration. Overall, the results demonstrate that TEE integration maintains an efficient framework suitable for critical operations, including key extraction, signing, and share decryption, even when interacting with blockchain networks.
