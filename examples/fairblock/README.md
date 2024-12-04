@@ -62,6 +62,6 @@ The following table summarizes the average runtime of each operation executed bo
 
 ### 5.2 Overhead Analysis
 
-The observed results indicate that integrating TEE incurs some additional runtime overhead across all operations. Specifically, **key extraction** has a minimum increase in runtime of **5.41%**. For **signing and sending transactions on-chain**, the overhead was **9.68%**, which represents the highest observed increase among the tested operations. The **share retrieval** operation also experienced an overhead of **8.02%**.
+The results show that integrating TEE introduces a moderate runtime overhead across all operations. Key extraction shows the lowest overhead, with an increase of **5.41%**. In contrast, signing and sending transactions on-chain shows the highest observed overhead, at **9.68%**. The share retrieval operation experienced an overhead of **8.02%**.
 
 These findings suggest that while using a TEE does introduce a runtime cost, this overhead is limited to a maximum of **9.68%** across the cryptographic operations. This level of overhead is acceptable given the enhanced security guarantees provided by TEE integration. Overall, the results demonstrate that TEE integration maintains an efficient framework suitable for critical operations, including key extraction, signing, and share decryption, even when interacting with blockchain networks.
