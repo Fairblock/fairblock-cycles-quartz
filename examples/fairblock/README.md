@@ -1,8 +1,8 @@
-# Fairblock-Cycles-Quartz
+# FairyCycles with Fairblock-Cycles-Quartz
 
-## 1. Why Fairblock-Cycles-Quartz?
+## 1. Why FairyCycles?
 
-Fairblock-Cycles-Quartz is built to enhance the security and reliability of validator operations within the Fairyring network. Validators are essential to the blockchain's integrity, but there is always a risk of collusion among them that can compromize the system. To address this, Fairblock-Cycles-Quartz uses the Cycles-Quartz library, allowing validator operations to run within a Trusted Execution Environment (TEE), which helps keep sensitive operations secure.
+FairyCycles is built to enhance the security and reliability of validator operations within the Fairyring network. Validators are essential to the blockchain's integrity, but there is always a risk of collusion among them that can compromize the system. To address this, Fairblock-Cycles-Quartz uses the Cycles-Quartz library, allowing validator operations to run within a Trusted Execution Environment (TEE), which helps keep sensitive operations secure.
 
 Our [Multimodal Cryptography Series – Accountable MPC + TEE](https://hackmd.io/@Fairblock/rkSiU78TR) explains the risks of validator collusion and the impact on blockchain integrity. One major risk is validators leaking decryption keys prematurely. Fairblock-Cycles-Quartz tackles this by ensuring validators are unaware of their own shares. Running key processes inside a TEE ensures that sensitive data remains isolated and verifiable through on-chain attestation.
 
