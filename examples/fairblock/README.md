@@ -1,4 +1,4 @@
-# FairyCycles with Fairblock-Cycles-Quartz
+# FairyCycles (Fairblock-Cycles-Quartz)
 
 ## 1. Why FairyCycles?
 
